@@ -1,0 +1,244 @@
+# BLASTN 2.7.1+
+# Query: JN174388.1 Heliconius numata aurora isolate L1270_05 heat shock protein (Hsp90) gene, partial cds
+# Database: trans_gasteracantha
+# Fields: query acc.ver, subject acc.ver, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 22 hits found
+JN174388.1      Contig3385      72.423  747     178     23      187     912     33      772     2.33e-57        220
+JN174388.1      Contig4331      75.055  453     105     7       1       449     338     786     1.82e-53        207
+JN174388.1      Contig1704      88.571  35      1       3       632     665     19      51      0.007   39.9
+JN174388.1      Contig5291      95.652  23      1       0       710     732     125     147     0.025   38.1
+JN174388.1      F2MILYB02CJ79W  86.667  30      4       0       201     230     83      112     0.33    34.4
+JN174388.1      F2MILYB02BRW5O  100.000 18      0       0       765     782     5       22      0.33    34.4
+JN174388.1      Contig3915      92.000  25      1       1       645     668     442     466     0.33    34.4
+JN174388.1      Contig1556      79.167  48      10      0       619     666     128     175     0.33    34.4
+JN174388.1      F2MILYB02BXTAV  95.000  20      1       0       657     676     249     268     1.2     32.5
+JN174388.1      F2MILYB02CAT9E  83.784  37      3       2       632     665     62      98      1.2     32.5
+JN174388.1      F2MILYB02B9NHY  88.462  26      3       0       644     669     133     158     1.2     32.5
+JN174388.1      Contig5037      83.784  37      3       2       632     665     402     438     1.2     32.5
+JN174388.1      Contig4339      86.207  29      4       0       634     662     401     429     1.2     32.5
+JN174388.1      F2MILYB02CBJR4  81.579  38      6       1       696     733     302     338     4.2     30.7
+JN174388.1      F2MILYB02CKKCO  88.000  25      3       0       710     734     82      106     4.2     30.7
+JN174388.1      F2MILYB02BTSWO  100.000 16      0       0       579     594     204     189     4.2     30.7
+JN174388.1      F2MILYB02BWURI  94.737  19      1       0       533     551     237     255     4.2     30.7
+JN174388.1      Contig3971      82.353  34      6       0       625     658     303     270     4.2     30.7
+JN174388.1      Contig3924      94.737  19      1       0       533     551     186     168     4.2     30.7
+JN174388.1      Contig3046      86.667  30      0       4       376     405     28      3       4.2     30.7
+JN174388.1      Contig3002      86.207  29      3       1       640     668     728     701     4.2     30.7
+JN174388.1      Contig1607      80.952  42      4       4       631     668     356     397     4.2     30.7
+# BLAST processed 1 queries
+(END)
+
+
+
+makeblastdb -in gasteracantha_contigs.fasta -dbtype nucl -parse_seqids -out trans_gasteracantha -title "Gasteracantha_transcriptome"
+
+#EXPLICACIÓN: makeblastdb: Es la herramienta de la suite NCBI BLAST+ encargada de indexar archivos de texto (FASTA) en un formato binario  que el motor de búsqueda puede leer eficientemente.
+-in gasteracantha_contigs.fasta: Especifica el archivo de entrada. En este caso, son los "contigs" (fragmentos de secuencia ensamblados) de la araña Gasteracantha.
+-dbtype nucl: Define el tipo de molécula. nucl indica que son nucleótidos (ADN/ARN). Si fueran proteínas, usarías prot.
+-parse_seqids: Es un flag crucial que indica a BLAST que debe indexar los IDs de las secuencias (los nombres que van después del >). Esto te permitirá extraer secuencias específicas por su nombre más adelante usando herramientas como blastdbcmd.
+-out trans_gasteracantha: Es el nombre base que tendrán los archivos de la base de datos resultante (se crearán varios archivos con extensiones como .nhr, .nin, .nsq).
+-title "Gasteracantha_transcriptome": Asigna un título descriptivo "humano" a la base de datos. Este nombre aparecerá en los encabezados de los informes de resultados cuando realices un BLAST.
+
+Por último, ahora sí hagamos nuestro BLAST.
+blastn -query hsp90_heliconius.fasta -task megablast -db trans_gasteracantha -outfmt 7 -word_size 7 -out blast_hsp90 -num_threads 1
+
+
+#EXPLICACIÓN: blastn: Ejecuta la búsqueda de nucleótido contra nucleótido.
+-query hsp90_heliconius.fasta: Utiliza la secuencia de la proteína de choque térmico (HSP90) de la mariposa Heliconius como molde para buscar coincidencias.
+-task megablast: Optimizado para encontrar secuencias muy similares (generalmente >95% de identidad). Es el algoritmo más rápido de BLAST, ideal para comparar especies cercanas o buscar genes conservados.
+-db trans_gasteracantha: Apunta a la base de datos de la araña que generaste con el comando anterior.
+-outfmt 7: Genera un archivo de salida tabular con comentarios (las líneas que empiezan por #). Es muy útil para parsing porque incluye los nombres de las columnas en el encabezado.
+-word_size 7: Es el tamaño de la "semilla" inicial para el alineamiento. Un valor de 7 es bastante sensible (el valor por defecto para megablast suele ser 28). Esto ayudará a encontrar coincidencias aunque las especies (Heliconius y Gasteracantha) estén evolutivamente distantes.
+-out blast_hsp90: El nombre del archivo donde se guardarán los resultados.
+-num_threads 1: Indica que solo use un núcleo del procesador.
+
+
+MODIFICAR ESTO: -outfmt 7 -word_size 7 (solo los numeros y identificar que es lo que cambia en los resultados)
+#Modifique:  outfmt 10
+JN174388.1,Contig3385,72.423,747,178,23,187,912,33,772,2.33e-57,220
+JN174388.1,Contig4331,75.055,453,105,7,1,449,338,786,1.82e-53,207
+JN174388.1,Contig1704,88.571,35,1,3,632,665,19,51,0.007,39.9
+JN174388.1,Contig5291,95.652,23,1,0,710,732,125,147,0.025,38.1
+JN174388.1,F2MILYB02CJ79W,86.667,30,4,0,201,230,83,112,0.33,34.4
+JN174388.1,F2MILYB02BRW5O,100.000,18,0,0,765,782,5,22,0.33,34.4
+JN174388.1,Contig3915,92.000,25,1,1,645,668,442,466,0.33,34.4
+JN174388.1,Contig1556,79.167,48,10,0,619,666,128,175,0.33,34.4
+JN174388.1,F2MILYB02BXTAV,95.000,20,1,0,657,676,249,268,1.2,32.5
+JN174388.1,F2MILYB02CAT9E,83.784,37,3,2,632,665,62,98,1.2,32.5
+JN174388.1,F2MILYB02B9NHY,88.462,26,3,0,644,669,133,158,1.2,32.5
+JN174388.1,Contig5037,83.784,37,3,2,632,665,402,438,1.2,32.5
+JN174388.1,Contig4339,86.207,29,4,0,634,662,401,429,1.2,32.5
+JN174388.1,F2MILYB02CBJR4,81.579,38,6,1,696,733,302,338,4.2,30.7
+JN174388.1,F2MILYB02CKKCO,88.000,25,3,0,710,734,82,106,4.2,30.7
+JN174388.1,F2MILYB02BTSWO,100.000,16,0,0,579,594,204,189,4.2,30.7
+JN174388.1,F2MILYB02BWURI,94.737,19,1,0,533,551,237,255,4.2,30.7
+JN174388.1,Contig3971,82.353,34,6,0,625,658,303,270,4.2,30.7
+JN174388.1,Contig3924,94.737,19,1,0,533,551,186,168,4.2,30.7
+JN174388.1,Contig3046,86.667,30,0,4,376,405,28,3,4.2,30.7
+JN174388.1,Contig3002,86.207,29,3,1,640,668,728,701,4.2,30.7
+JN174388.1,Contig1607,80.952,42,4,4,631,668,356,397,4.2,30.7
+
+#Modifique: outfmt 8
+Seq-annot ::= {
+  desc {
+    user {
+      type str "Hist Seqalign",
+      data {
+        {
+          label str "Hist Seqalign",
+          data bool TRUE
+        }
+      }
+head: cannot open 'head' for reading: No such file or directory
+
+==> blast4_hsp90 <==
+Seq-annot ::= {
+  desc {
+    user {
+      type str "Hist Seqalign",
+      data {
+        {
+          label str "Hist Seqalign",
+          data bool TRUE
+        }
+      }
+
+#Modifique: outfmt 2
+Length=980
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+Contig3385                                                            220     2e-57
+Contig4331                                                            207     2e-53
+Contig1704                                                            39.9    0.007
+Contig5291                                                            38.1    0.025
+F2MILYB02CJ79W  rank=0181944 x=933.0 y=1618.0 length=246              34.4    0.33
+F2MILYB02BRW5O  rank=0076729 x=610.0 y=3850.0 length=387              34.4    0.33
+Contig3915                                                            34.4    0.33
+Contig1556                                                            34.4    0.33
+F2MILYB02BXTAV  rank=0142728 x=678.0 y=261.5 length=343               32.5    1.2
+F2MILYB02CAT9E  rank=0096683 x=826.0 y=1824.0 length=244              32.5    1.2
+F2MILYB02B9NHY  rank=0034149 x=812.0 y=3748.0 length=232              32.5    1.2
+Contig5037                                                            32.5    1.2
+Contig4339                                                            32.5    1.2
+F2MILYB02CBJR4  rank=0147620 x=834.5 y=2130.5 length=367              30.7    4.2
+F2MILYB02CKKCO  rank=0127993 x=937.0 y=886.0 length=377               30.7    4.2
+F2MILYB02BTSWO  rank=0101373 x=632.5 y=1542.5 length=256              30.7    4.2
+F2MILYB02BWURI  rank=0091095 x=667.0 y=556.5 length=398               30.7    4.2
+Contig3971                                                            30.7    4.2
+Contig3924                                                            30.7    4.2
+Contig3046                                                            30.7    4.2
+Contig3002                                                            30.7    4.2
+Contig1607                                                            30.7    4.2
+
+Query_1         721  aaaaagaagaagaaaaccatcaaagaaaagTACACTGAGGATGAGGAACTGAACAAGACC  780
+Contig3385      583  AAGAAAAAGAAGAAAA-TA-CAAGGAAAAATATACAGAGGATGAAGAATTGAATAAAACT  640
+Contig5291      136  AATAAGAAGAAG                                                  147
+F2MILYB02BRW5O  5                                                GGAACTGAACAAGACC  20
+F2MILYB02CBJR4  326  CAAATGAAGAAGA                                                 338
+F2MILYB02CKKCO  93   ACCAAGAATAAGAA                                                106
+
+Query_1         781  AAGCCTATCTGGACACGCAATGCAGATGACATTACCCAGGAAGAGTATGGTGATTTCTAT  840
+Contig3385      641  AAGCCTATTTGGATGAGGAATCCTGATGATATTAGCCAAGAAGAATATGGAGAATTCTAC  700
+F2MILYB02BRW5O  21   AA                                                            22
+
+Query_1         841  AAATCTCTCACCAATGACTGGGAAGACCATTTAGCTGTCAAACACTTCAGTGTTGAGGGT  900
+Contig3385      701  AAGAGTTTGACAAATGATTGGGAAGATCATCTGGCTGTGAAACACTTCTCTGTTGAAGGT  760
+
+Query_1         901  CAACTTGAGTTC  912
+Contig3385      761  CAACTTGAGTTC  772
+
+
+Lambda      K        H
+    1.34    0.622     1.13
+
+Gapped
+Lambda      K        H
+    1.28    0.460    0.850
+
+Effective search space used: 7197849648
+
+
+  Database: Gasteracantha_transcriptome
+    Posted date:  Feb 27, 2026  4:55 PM
+  Number of letters in database: 8,111,513
+  Number of sequences in database:  25,663
+
+
+
+Matrix: blastn matrix 1 -2
+Gap Penalties: Existence: 0, Extension: 2.5
+
+
+#EXPLICACIÓN DE LOS FROMATOS DE ARCHIVO QUE PUEDO UTILIZAR:
+Código | Formato de Archivo   | Descripción del Contenido                               | Ejemplo de Uso
+-------|----------------------|---------------------------------------------------------|----------------
+0      | TXT (Pairwise)       | Texto plano legible. Muestra alineamiento base por base.| -outfmt 0
+5      | XML                  | Formato estructurado para programas (Biopython).        | -outfmt 5
+6      | TSV (Tabular)        | Tabla con tabs. El estándar en bioinformática.          | -outfmt 6
+7      | TSV con Comentarios  | Igual al 6, pero incluye líneas con # explicativas.     | -outfmt 7
+10     | CSV (Excel)          | Valores separados por comas. El mejor para Excel.       | -outfmt 10
+11     | ASN.1 (Archivo)      | Formato comprimido. Se usa para conversiones externas.  | -outfmt 11
+15     | JSON                 | Formato de datos ligero para programación web.          | -outfmt 15
+16     | SAM                  | Formato estándar de mapeo (usado en IGV).               | -outfmt 16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+q#!/bin/bash
+#SBATCH -p normal #Particion (cola)
+#SBATCH -N 1 # Numero de nodos
+#SBATCH -n 2 # Numero de nucleos
+#SBATCH -t 0-00:5 # limite de tiempo (D-HH:MM)
+#SBATCH -o salida.out # Salida STDOUT
+#SBATCH -e error.err # Salida STDERR
+#SBATCH --mail-user=mariana.rozor@urosario.edu.co #Direccion e-mail a donde notificar el estado del trabajo
+#SBATCH --mail-type=ALL #Especifica que eventos notificar al correo (ALL, BEGIN, END, REQUEUE, FAIL)
+
+#28_DPI_MUESTRA1
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/007/SRR9667917/SRR9667917_1.fastq.gz" >> 28DPI_1_SRR9667917
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/007/SRR9667917/SRR9667917_2.fastq.gz" >> 28DPI_2_SRR9667917
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667918_1.fastq.gz" >> 28DPI_1_SRR9667918
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667918_2.fastq.gz" >> 28DPI_2_SRR9667918
+
+#28_DPI_MUESTRA3
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667919_1.fastq.gz" >> 28DPI_1_SRR9667919
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667919_2.fastq.gz" >> 28DPI_2_SRR9667919
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667920_1.fastq.gz" >> 28DPI_1_SRR9667920
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/008/SRR9667918/SRR9667920_2.fastq.gz" >> 28DPI_2_SRR9667920
+
+
+#120_DPI_MUESTRA2
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/005/SRR9667925/SRR9667925_1.fastq.gz" >> 120DPI_1_SRR9667925
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/005/SRR9667925/SRR9667925_2.fastq.gz" >> 120DPI_1_SRR9667925
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667926_1.fastq.gz" >> 120DPI_1_SRR9667926
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667926_2.fastq.gz" >> 120DPI_1_SRR9667926
+
+#120_DPI_MUESTRA3
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667927_1.fastq.gz" >> 120DPI_1_SRR9667927
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667927_2.fastq.gz" >> 120DPI_1_SRR9667927
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667928_1.fastq.gz" >> 120DPI_1_SRR9667928
+wget"ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR966/006/SRR9667926/SRR9667928_2.fastq.gz" >> 120DPI_1_SRR9667928
+
+
+El análisis de homología confirma que el Contig3385 corresponde al gen HSP 90, tras obtener un alineamiento sobresaliente con la secuencia de la araña Argiope bruennichi que presenta un E-value de 0.0, un 86.33% de identidad y una cobertura del 99%. Aunque en los resultados también aparece la HSP 83 con un E-value de 10  −175 e identidad del 77.76%, esta diferencia estadística se debe a que ambas proteínas pertenecen a la misma superfamilia de chaperonas de 90 kDa, la cual es altamente conservada en términos evolutivos. Por lo tanto, la HSP 83 representa un homólogo en organismos más distantes, mientras que la coincidencia con A. bruennichi valida la identidad específica del gen en arácnidos debido a su mayor proximidad taxonómica y solidez en los parámetros de alineamiento.

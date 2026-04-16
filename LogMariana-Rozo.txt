@@ -1,0 +1,1266 @@
+# Society Study of Evolution
+# Kent State
+#CornellLab
+#Selva
+#Archivo log = con info basica
+#Archivo de analisis de datos genomicos evolutivos
+#Mariana Rozo Rangel
+#Inicio: 9/12/2024
+#Dependienco de lo que voy a hacer y lo subdivido en cosas aparte y doy la ubicación de los archivos y de donde salio.
+#EJ: Archivos de referencia y describir todo, y uso bien de los # y eso indica: sistema markdown diapositiva
+
+Apuntes:
+#Windows
+dir
+#Linux o unix o bash
+#Imprimir ruta
+pwd
+# Ir en alguna direccion
+cd 
+cd ..
+cd 
+
+#Listar  xl para pedir detalles 
+ls
+ls -xl
+ls -hs
+
+#scp para cargar un documento en un clouster o para bajarlo en mi windows 
+scp clouster/nombreachivo adondequieromoverlo
+# leer lo primero o lo ultimo de un archivo
+head archivo 
+head -20 archivo
+head -50 archivo
+# Las ultimas lineas
+tail archivo 
+
+# Observar
+less archivo
+#
+#Concatenar o leer en pantalla del clouster
+cat archivo
+cat archivo1 archivo2
+
+#Para editar algo en el archivo
+sed 's/seq/gen/g' archivo
+#Explicación: Sustituye seq por gen en todo el archivo (g)
+
+# Buscar algo especifico en un archivo
+#muestrade lo que esta en Archivo.fasta que tiene >
+grep '>' Archivo.fasta
+# Dime que hay Antes de donde este >
+grep -B1 '>' Archivo.fasta
+# Dime que hay despues de donde este >
+grep -A1 '>' Archivo.fasta
+
+#Sacar los que tienen > y dime cuantas lineas son
+grep '>' Archivo.fasta | wc -l
+
+#Lee el archivo.fasta y saca la cantidad de lineas, en este caso si quiero sacar apartir de esto la cantidad de secuncias tengo que recordar que segun la estructura de un fasta seria #lineas/2
+less  Archivo.fasta | wc -l
+ 
+#Para Achivos.fastq segun la esctuctura empieza con @
+grep '@' Archivo.fastq | ws -l
+
+# Crear un directorio
+mkdir newdirectorio
+
+
+# Ingresar al clouster
+shh evogenomica@unidandes.edu.co
+
+#Crea archivo o editar un archivo 
+nano archivo.txt
+nano archivo.sh
+
+
+# Dar los 3 permisos leer  editar y ejecutar
+chmod 777 arcivo.sh
+
+
+# Para comparar mis secuencias con un genoma de referencia
+#Hay varios programas entre ellos:
+bwa
+# Cargar programa
+module load programa
+module load bwa
+------------------------------------------------------
+# Pedir informacion sobre un comando de mi programa
+programa comando -help
+bwa mem -help
+
+#Para saber que programas hay en mi clouster
+module avail
+
+# Para cuando se trabe mi lenguaje
+:qa!
+------------------------------------------------------
+#Cuando voy  hacer un mapeo contra un genoma de referencia debo: cargar el programa, llamar al programa, crear un programa (un archivo con los 3 permisos de ejecutar para eso aplicar  chmod 777 )
+#En este programa o archivo debe ser sh y ademas debe tener todas las indicaciones iniciales y luego abajo debo colocar como ya el codigo de ejecuacion asi le llamo yo: 
+
+module load bwa
+bwa mem -t 4 -R "@RG\tID:A\tSM:A" /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.pa$
+#Explicación: llama al programa utiliza 4 nodos , el individuo va a ser A, utiliza la siguiente ruta donde esta el "archivo de genoma guia" emplea en la carpeta en la que esta este scrib los documento: secuenciaR1 secuencias R2 > llamalo A.sam porque lo que me vas a dar es un archivo de texto en estructura SAM
+#   /: significa espacio lo usan en bioinformatica para evitar problemas con eso
+
+# Para correr el programa
+sbatch Archivoconscrib
+
+#Para ver que se esta corriendo en el clouster
+squeue
+
+# Muestra lo que ya corrio
+ll
+
+#Cancela correr algo
+scancel 262704
+
+
+# Se crea un scrip que luego se ejecutan en el clouster
+inician asi:
+#!/bin/sh
+# Colocas el nombre de lo que estas corriendo
+# Nodos
+# Tiempo
+# Memoria
+# Si algo falla se guarda en algo y tu luegos ves con less cual es el error
+
+#Hay que revisar el manuel de los programas
+# Secuencias Forward R1: 5'    3'
+# Secuencias Reverse R2: 3'TAGA    5'  pero se escribe al reves en estos comadnos 5' AGAT 3'
+# CBA: Siempre las Secuencias se asumen que es 5' y 3' 
+#  PERD END: No se sobre lapan quedan dos frangemtos separados leidos es decir si mi fragmento es 150 pb y lei 150 pb
+
+
+# Clase 3----------------
+[evogenomica@hypatia Estudiantes]$ cd marianar/
+[evogenomica@hypatia marianar]$ nano LogMariana-Rozo.txt
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  ejemplo.sh                samstatsonlySN     TP_genome_v1.annotation.full.gff
+A-readpool-it1.part_002.fastq  ejemplo.txt               samstats.txt
+A.sam                          LogMariana-Rozo.txt       slumr-262704.base
+combined_seq.fastagen          LogMariana-Rozo.txt.save  slurmjob_blank.sh
+[evogenomica@hypatia marianar]$ tail slurm-262704.base
+tail: cannot open 'slurm-262704.base' for reading: No such file or directory
+[evogenomica@hypatia marianar]$ tail slurmjob_blank.sh
+#SBATCH -p medium
+#SBATCH -N 4
+#SBATCH -n 4
+#SBATCH --cpus-per-task=2
+#SBATCH --time=167:00:00
+#SBATCH --mem-per-cpu=22000
+#SBATCH --output=slumr-%j.base
+
+# Uno puede volver a corre lo que estaba en el scrib afuera en el clouster si en 5 minutos no me correo o sale cuanto se demoro en correr o los detalles entonces es mejor colocarlo en un scrib y luego correrlo con:  sbatch
+module load bwa
+bwa mem -t 4 -R "@RG\tID:A\tSM:A" /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.part_001.fastq A-readpool-it1.part_002.fastq > A.sam
+[evogenomica@hypatia marianar]$ module load bwa
+[evogenomica@hypatia marianar]$ bwa mem -t 4 -R "@RG\tID:A\tSM:A" /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.part_001.fastq A-readpool-it1.part_002.fastq > A.sam
+[M::bwa_idx_load_from_disk] read 0 ALT contigs
+[M::process] read 32892 sequences (4933800 bp)...
+[M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (0, 15636, 3, 0)
+[M::mem_pestat] skip orientation FF as there are not enough pairs
+[M::mem_pestat] analyzing insert size distribution for orientation FR...
+[M::mem_pestat] (25, 50, 75) percentile: (281, 342, 404)
+[M::mem_pestat] low and high boundaries for computing mean and std.dev: (35, 650)
+[M::mem_pestat] mean and std.dev: (343.20, 94.05)
+[M::mem_pestat] low and high boundaries for proper pairs: (1, 773)
+[M::mem_pestat] skip orientation RF as there are not enough pairs
+[M::mem_pestat] skip orientation RR as there are not enough pairs
+[M::mem_process_seqs] Processed 32892 reads in 1.218 CPU sec, 0.737 real sec
+[main] Version: 0.7.17-r1188
+[main] CMD: bwa mem -t 4 -R @RG\tID:A\tSM:A /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.part_001.fastq A-readpool-it1.part_002.fastq
+[main] Real time: 1.617 sec; CPU: 1.269 sec
+
+#Los clouster tiene o indican que tipo de comunemntos debo usar en este caso con hypatia "job" en el sistema STUM
+
+#Mantener copias de los scrib
+
+#Para organizar los sam por referencias nos recomiendan usar ls -xl para ver el tamaño de mi archivo sam
+
+[evogenomica@hypatia marianar]$ ls -xl
+ls -xl A.sam
+total 751288
+-rw-r--r-- 1 evogenomica cursos  14277700 Dec 11 09:14 A.sam
+
+
+# A veces pueden salir 
+# Lo que realmente necesitramos sacar es una secuencia consenso 
+# Determinar cobertura que esto es por posicion  entonces hay varios readers que se colocan sobre el genoma de referencia esto  
+# Lo que se quiere en realida es anidar las secuencias representativasd delos ndividuos
+# Hay manerad de 
+
+
+#ARCHIVOS VCF
+#Los encabezados inician con ## y dicen todo lo que uno hizo
+## fileformat=VCF.v4.2
+#Coloco la informacion y siglas que signficica cada cosa que use alli adentro en todo el VCF
+# Campos de columna de formato
+# Colomanas de informacion
+# Da info adecional se uso tan cosa o tal comando y de que comando
+# Primero  que todo me dan la info de una variante y luego por individuos pero todos para las mismas variantes
+# ademas si lo que yo estoy conoarante son muy lejanos y diferentes pueden salir muchas variantes y ademas tambien si son mas cercanos menos variantes
+# Pero puedo filtrar las cosas  pero debo yo acalara lo que yo quiero que contenga pero pilas si quito cosas puedo perder variables
+# Pero hay cosas no organizadas y pues filtro por estadisticas.
+# Filtro de calidad
+-mbq 20-
+
+#ARCHIVOS COMPRIMIDOS DE BCF
+# Filtros por cosas que me interesan
+# por ejemplo sacar individuos que generan frecuencias bajas de este alelo alternativo
+# generalmente uno remueve indeles por que aja no se sabe que hacer pero debe haber alguna manera de analizarlo
+# por ejemplo colocar una condicion para los SNPS estos puntos generalmente se usan 2 porque aja es un complique con 4
+# entonves para ko anterior puedo hacer nun filtro
+# Filtrar por cromosoma o cosas que yo necesito filtrar ser muy organizada
+
+# INICIEMOS CON EL CODIGOOOO:
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  copiascrib           LogMariana-Rozo.txt.save  slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  LogMariana-Rozo.txt  slurmjob_blank.sh
+[evogenomica@hypatia marianar]$
+# Creo el scrib para bwa
+[evogenomica@hypatia marianar]$ sbatch slurmjob_bwa.sh
+Submitted batch job 262965
+[evogenomica@hypatia marianar]$ squeue
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+            262095    bigmem AlignChu v.nascim  R 8-03:39:18      1 nodea-4
+            262876       gpu final_pr j.rodrig  R   20:44:24      1 nodei-gpu-2
+            261188       gpu    sbi_1 je.alfon  R 14-14:20:59      1 nodei-gpu-2
+            262890       gpu      DiT si.rinco  R   20:06:50      1 nodei-gpu-2
+            262889    medium   EDTAPT dh.mahec PD       0:00      1 (QOSMaxCpuPerUserLimit)
+            260056    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            257194    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            257193    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            262962    medium ks.jaram evogenom  R       0:17      4 nodei-[3-6]
+            262066    medium   binary a.lutsen  R 8-18:54:26      1 nodea-6
+            262423    medium   ASM-AB ac.balle  R 4-22:17:16      1 nodea-5
+            262878    medium   EDTAPT dh.mahec  R   20:40:47      1 nodea-1
+            262623    medium LBIGC_eL     lago  R 1-03:39:44      1 nodea-6
+            217485     short Proyecto g.balagu PD       0:00      2 (PartitionTimeLimit)
+            217435     short Proyecto g.balagu PD       0:00      2 (PartitionTimeLimit)
+            215147     short AMBER_te quim_451 PD       0:00      1 (PartitionTimeLimit)
+            215070     short AMBER_te quim_451 PD       0:00      1 (PartitionTimeLimit)
+            262910     short VGP_mamm a.castel PD       0:00      1 (PartitionTimeLimit)
+            262914     short VGP_mamm a.castel PD       0:00      1 (PartitionTimeLimit)
+            262951     short     bash lc.restr  R      36:44      1 nodei-9
+            262916     short VAHT3DVO cm.moral  R    5:28:39      2 nodea-6,nodei-1
+            262781     short 12_AoA_5 jd.amaya  R   21:56:19      2 nodei-[8-9]
+            262919     short VAHTR3SH cm.moral  R    5:13:21      1 nodei-10
+[evogenomica@hypatia marianar]$ ll
+total 25089
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_001.fastq
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_002.fastq
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 09:24 copiascrib
+-rw-r--r-- 1 evogenomica cursos     8861 Dec 11 10:53 LogMariana-Rozo.txt
+-rw-r--r-- 1 evogenomica cursos     3952 Dec 10 22:43 LogMariana-Rozo.txt.save
+-rw-r--r-- 1 evogenomica cursos     1039 Dec 11 11:02 slumr-262965.base
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 10 10:34 slurmjob_blank.sh
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 10:59 slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       slumr-262965.base  slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slurmjob_blank.sh
+[evogenomica@hypatia marianar]$ tail slumr-262965.base
+[M::mem_pestat] (25, 50, 75) percentile: (281, 342, 404)
+[M::mem_pestat] low and high boundaries for computing mean and std.dev: (35, 650)
+[M::mem_pestat] mean and std.dev: (343.20, 94.05)
+[M::mem_pestat] low and high boundaries for proper pairs: (1, 773)
+[M::mem_pestat] skip orientation RF as there are not enough pairs
+[M::mem_pestat] skip orientation RR as there are not enough pairs
+[M::mem_process_seqs] Processed 32892 reads in 0.909 CPU sec, 0.462 real sec
+[main] Version: 0.7.17-r1188
+[main] CMD: bwa mem -t 4 -R @RG\tID:A\tSM:A /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.part_001.fastq A-readpool-it1.part_002.fastq
+[main] Real time: 0.555 sec; CPU: 0.942 sec
+[evogenomica@hypatia marianar]$ ls -xl
+total 25089
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_001.fastq
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_002.fastq
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 09:24 copiascrib
+-rw-r--r-- 1 evogenomica cursos     8861 Dec 11 10:53 LogMariana-Rozo.txt
+-rw-r--r-- 1 evogenomica cursos     3952 Dec 10 22:43 LogMariana-Rozo.txt.save
+-rw-r--r-- 1 evogenomica cursos     1039 Dec 11 11:02 slumr-262965.base
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 10 10:34 slurmjob_blank.sh
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 10:59 slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ head A.sam
+@SQ     SN:NC_023940.1  LN:16699
+@RG     ID:A    SM:A
+@PG     ID:bwa  PN:bwa  VN:0.7.17-r1188 CL:bwa mem -t 4 -R @RG\tID:A\tSM:A /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta A-readpool-it1.part_001.fastq A-readpool-it1.part_002.fastq
+A00250:195:HT3NKDSXX:1:1101:20030:1642  83      NC_023940.1     4618    60      150M    =       4396    -372    GCTGGGCCATTTGCCCTTTTCTTCCTGGCTGAATATGCCAACATTATACTTATAAACACCCTGACAACAATCCTATTCCTTAACCCAAGCTTCCTAAACCTCCCCTCCGAACTATTCTCCGTCGCATTGGCCATCAAAGTTCTCCTACTC   FFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:20030:1642  163     NC_023940.1     4396    60      150M    =       4618    372     GAAGTCACCCTGGCTATCATCCTCCTATCCATTATTATACTGAGCGGAAACTACACCCTAAGCACCCTGGCCGCCACTCAAGAACCCATTTACCTTATCTTCCCCTCATGACCCCTAGCAATAATATGGTACATCTCTACCCTCGCTGAA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,,FFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFF        NM:i:1  MD:Z:83G66      MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:31096:2456  99      NC_023940.1     8769    60      150M    =       8907    288     CGATTAAACCAAACCTCCTTTATCACCACCCGACCAGGAGTATTCTACGGACAATGTTCAGAGATCTGCGGGGCTAACCATAGCTTTATGCCCATTGTAGTAGAATCCACACCCCTTAAACACTTCGAAACCTGATCCTCCCTCCTATCA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:31096:2456  147     NC_023940.1     8907    60      150M    =       8769    -288    TCCCTCCTATCATCCTAACCATTAAGAAGCTATGAATCAGCACTAGCCTTTTAAGCTAGAGAGAGAGGGACCCCCTCCCCTCCTTAATGGCATGCCCCAATTAAACCCCAATCCCTGATTCACTATCATACTTTTAACCTGATTCACCTT   :FFFF,FFFFFFF:FFFF:FFFFFFFFF,FFFFFFFFFF:FFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFF        NM:i:1  MD:Z:39A110     MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:29595:2832  83      NC_023940.1     12769   60      150M    =       12670   -249    TCAACAACCCCTCTATGCAAACATAGTTTAATCCAAACATTAGATTGTGATTCTAAAAATAGGAGTTTAAACCTCCTTGTTCGCCGAGGGGTGGCCTAAACCAGCAAGAACTGCTAATTCCTGCATCCGAGCTTTAAACCTCGGCCCCCT   FFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:29595:2832  163     NC_023940.1     12670   60      150M    =       12769   249     CACATCACAACATCCTCAAACTCAAATACACGAGAACACCTTCTCATAGCCCTCCACATCATTCCCATGCTAGCTCTCATTCTCAAACCAGAACTAATCTCAACAACCCCTCTATGCAAACATAGTTTAATCCAAACATTAGATTGTGAT   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:1101:17047:5494  83      NC_023940.1     2875    60      150M    =       2711    -314    TCAAGCAGGTCAATCTATACAAATAGAAGAATCAATGCTAAAATAAGTAACTCGGAAACTTCCCCGCACAGCGCAAACTTACATTGACGTATTATTAACAGGCCCAGCTTATACTCCAATTACAACAAGAGCACGTATTTAATCCCACCT   FFFFFFF:FFFFFF:FFFFFFF:FFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF        NM:i:1  MD:Z:101A48     MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+[evogenomica@hypatia marianar]$ tail A.sam
+A00250:195:HT3NKDSXX:1:2678:31729:10942 83      NC_023940.1     3093    60      150M    =       2983    -260    CCCGACTGTTTACAAAAAACATAGCCTCCGGCAAACAAGCAAGTATCGGAGGTGATGCCTGCCCAGTGACCCACAAAGTTTAACGGCCGCGGTATCCTAACCGTGCAAAGGTAGCGCAATCAATTGTCCCATAAATCGAGACTTGTATGA   F:F,F:F,FFFF:,FFFFFFFFF::,F:F,:,,F:FF:,,F::FFFFF,F:FF:FF::,F::F::FF::FF,FF:FFFFFFFFFFF,F,F:FF,FF,FF:FFF:F,FFFFFFFF,F::FFFFFFFFF,F:FFFFFF:F:,::FFFFFFFF        NM:i:1  MD:Z:13C136     MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:31729:10942 163     NC_023940.1     2983    60      150M    =       3093    260     TTATACTCCAATTACAACAAGAGCACGTATTTAATCCCACCTGTTACACCGACTCAGGAGCGCTAACACAAGAGATTAAAATCTGCAAAAGGAACTCGGCAAACCAAAGACCCGACTGTTTACCAAAAACATAGACTCCGGCAAACAAGC   FFFFFFFFFFFFFFFFF,FFF:FFFFF:FFFFFFF:FFFF,FF::FFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFF,FFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFF:F:,FFF,F:FFFFF:F,:        NM:i:1  MD:Z:134C15     MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:8675:13855  83      NC_023940.1     12647   60      150M    =       12465   -332    CCCAACGGGGAATCCTACCAACTCACATCACAACATCCTCAAACTCAAATACACGAGAACACCTTCTCATAGCCCTCCACATCATTCCCATGCTAGCTCTCATTCTCAAACCAGAACTAATCTCAACAACCCCTCTATGCAAACATAGTT   FFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFF:FFFFFFFFFFF:FFF:FFFFFFF:FFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFF,FFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:8675:13855  163     NC_023940.1     12465   60      150M    =       12647   332     ACTAATATCCACATGGTGACTCCTAGCCAACTTAACCAACATAGCCCTACCTCCAACAACTAACCTAATAGCAGAACTAACAATCATAATCTCCCTCTTTAACTGATCCCCCCTCACAATTATCCTAACTGGGGATGCAACACTCCTGAC   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFF,FFFF:FF:FFFFFFF        NM:i:1  MD:Z:134C15     MC:Z:150M       AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:13105:21621 117     NC_023940.1     9324    0       *       =       9324    0       CTCCATCAAGGTGAAACACCTGTACTGTAGGCCCTCCTCCTGCCTCAGGGATCTCTGCCTCCCGCTCCCACTCTGCACTTGTGGTGGCATCCCCCACCTCCCACACTTCCCTGCCAGGTTGGCTGTCACTAGGGATGAAGCTGTCACTGC   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF        MC:Z:150M       AS:i:0  XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:13105:21621 185     NC_023940.1     9324    60      150M    =       9324    0       TTAATAACCCCTCTAAACAAAGCAGGCCATAAATGGGCCCTCCTATTGATCTCCCTCATCCTCCTACTCCTCTCCATTAATCTTCTCGGACTCCTTCCATACACTTTCACCCCCACCACCCAGTTATCAATAAACATAGCCCTAGCCCTC   FFFFFFFFF,FFFFFF:FFFFFFF:FFFFFFFFFFFF:FF:FFFFFFFFFF:FFFFFFFFFFFFFFFF:FF:FFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFF:FF:F:F:FFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFF        NM:i:1  MD:Z:85C64      AS:i:145        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:9950:22670  99      NC_023940.1     106     60      150M    =       340     384     TATGGTAACAGTACTATATATTATATACCGTACTAGGCCCATTATATGTAAACGGACATTACACTATCAGCCCCATCTCTCCTTACGTGCATATTAACCATTCTCTAAGACCTTACTTGCTACCCTACCAACACTGCTTGCAAAGCCCAC   FFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:9950:22670  147     NC_023940.1     340     60      150M    =       106     -384    TGGATTTATTGATCGGACACCTCACGAGAGATCAGCAACCCCTGCCTGTAATGTACTCCATGACTAGCTTCAGGCCCATTCTTTCCCCCTACACCCCTCGCCCTACTTGCTCTTTTGCGCCTCTGGTTCCTCGGTCAGGAACATCCCATG   F:FFFF,FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFFFFFFF,F:FFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFF:FFFFFFFFFFFFFFF        NM:i:0  MD:Z:150        MC:Z:150M       AS:i:150        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:4209:33771  99      NC_023940.1     9302    60      145M5S  =       9396    244     TATCCATCTTCTCACAAAACAATTAATAACCCCTCTAAACAAAGCAGGCCATAAATGGGCCCTCCTATTGATCTCCCTCATCCTCCTACTCCTCTCCATTAATCTTCTCGGACTCCTTCCATACACTTTCACCCCCACCACCCAGGGATC   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFF:FF:FF,FF:FFF::FFFFFFFFF:::FF,FF,FFF,F,,,,:        NM:i:1  MD:Z:107C37     MC:Z:150M       AS:i:140        XS:i:0  RG:Z:A
+A00250:195:HT3NKDSXX:1:2678:4209:33771  147     NC_023940.1     9396    60      150M    =       9302    -244    TCCATTAATCTTCTCGGACTCCTTCCATACACTTTCACCCCCACCACCCAGTTATCAATAAACATAGCCCTAGCCCTCCCCCTATGACTTGCCACCCTACTAATCGGCCTACGAAACCAACCTTCTACATCCCTAGGCCACCTCCTCCCT   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFF:FFFF        NM:i:1  MD:Z:13C136     MC:Z:145M5S     AS:i:145        XS:i:0  RG:Z:A
+[evogenomica@hypatia marianar]$
+
+
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       slumr-262965.base  slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slurmjob_blank.sh
+[evogenomica@hypatia marianar]$ cp slumr-262965.base slumr-262965.bwa
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       slumr-262965.base  slurmjob_blank.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slumr-262965.bwa   slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ cp slurmjob_blank.sh slurm.samabam > Scribbam
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       Scribbam           slumr-262965.bwa   slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slumr-262965.base  slurmjob_blank.sh  slurm.samabam
+[evogenomica@hypatia marianar]$ cd Scribbam
+
+
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       Scribbam           slumr-262965.bwa   slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slumr-262965.base  slurmjob_blank.sh  slurm.samabam
+[evogenomica@hypatia marianar]$ cp slurmjob_blank.sh slurm.samabam
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       Scribbam           slumr-262965.bwa   slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slumr-262965.base  slurmjob_blank.sh  slurm.samabam
+[evogenomica@hypatia marianar]$ rm Scribbam
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam       LogMariana-Rozo.txt       slumr-262965.base  slurmjob_blank.sh  slurm.samabam
+A-readpool-it1.part_002.fastq  copiascrib  LogMariana-Rozo.txt.save  slumr-262965.bwa   slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ rm copiascrib
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam                LogMariana-Rozo.txt.save  slumr-262965.bwa   slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  LogMariana-Rozo.txt  slumr-262965.base         slurmjob_blank.sh  slurm.samabam
+[evogenomica@hypatia marianar]$ nano slurm.samabam
+[evogenomica@hypatia marianar]$ cp slumr-262965.base slumr-262965.bwa
+
+# Cree una copia del scrib para bam luego en ese archivo pues coloque esto y luego lo corri: lo que se busca en la ultima parte del codigo es decir - b es pasame de sam a bam si fuera alrevez aja tu tienes que ver el manual
+#!/bin/sh
+#SBATCH --job-name=bwa_marianar
+#SBATCH -p medium
+#SBATCH -N 4
+#SBATCH -n 4
+#SBATCH --cpus-per-task=2
+#SBATCH --time=167:00:00
+#SBATCH --mem-per-cpu=22000
+#SBATCH --output=slumr-%j.base
+
+module load samtools
+samtools view -b A.sam > A.bam
+
+# VEAMOS DE NUEVO EL CODIGO DE LO QUE HICE:
+[evogenomica@hypatia marianar]$ ls
+A-readpool-it1.part_001.fastq  A.sam                LogMariana-Rozo.txt.save  slumr-262965.bwa   slurmjob_bwa.sh
+A-readpool-it1.part_002.fastq  LogMariana-Rozo.txt  slumr-262965.base         slurmjob_blank.sh  slurm.samabam
+[evogenomica@hypatia marianar]$ rm slumr-262965.base
+[evogenomica@hypatia marianar]$ sbatch slurm.samabam
+Submitted batch job 262995
+[evogenomica@hypatia marianar]$ squeue
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+            262095    bigmem AlignChu v.nascim  R 8-03:51:56      1 nodea-4
+            262876       gpu final_pr j.rodrig  R   20:57:02      1 nodei-gpu-2
+            261188       gpu    sbi_1 je.alfon  R 14-14:33:37      1 nodei-gpu-2
+            262890       gpu      DiT si.rinco  R   20:19:28      1 nodei-gpu-2
+            262889    medium   EDTAPT dh.mahec PD       0:00      1 (QOSMaxCpuPerUserLimit)
+            260056    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            257194    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            257193    medium  TestJOB mf.penue PD       0:00      8 (QOSMaxCpuPerJobLimit)
+            262066    medium   binary a.lutsen  R 8-19:07:04      1 nodea-6
+            262423    medium   ASM-AB ac.balle  R 4-22:29:54      1 nodea-5
+            262878    medium   EDTAPT dh.mahec  R   20:53:25      1 nodea-1
+            262623    medium LBIGC_eL     lago  R 1-03:52:22      1 nodea-6
+            217485     short Proyecto g.balagu PD       0:00      2 (PartitionTimeLimit)
+            217435     short Proyecto g.balagu PD       0:00      2 (PartitionTimeLimit)
+            215147     short AMBER_te quim_451 PD       0:00      1 (PartitionTimeLimit)
+            215070     short AMBER_te quim_451 PD       0:00      1 (PartitionTimeLimit)
+            262910     short VGP_mamm a.castel PD       0:00      1 (PartitionTimeLimit)
+            262914     short VGP_mamm a.castel PD       0:00      1 (PartitionTimeLimit)
+            262951     short     bash lc.restr  R      49:22      1 nodei-9
+            262916     short VAHT3DVO cm.moral  R    5:41:17      2 nodea-6,nodei-1
+            262781     short 12_AoA_5 jd.amaya  R   22:08:57      2 nodei-[8-9]
+            262919     short VAHTR3SH cm.moral  R    5:25:59      1 nodei-10
+[evogenomica@hypatia marianar]$ ll
+total 27506
+-rw-r--r-- 1 evogenomica cursos  2474723 Dec 11 11:15 A.bam
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_001.fastq
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_002.fastq
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+-rw-r--r-- 1 evogenomica cursos     8861 Dec 11 10:53 LogMariana-Rozo.txt
+-rw-r--r-- 1 evogenomica cursos     3952 Dec 10 22:43 LogMariana-Rozo.txt.save
+-rw-r--r-- 1 evogenomica cursos     1039 Dec 11 11:14 slumr-262965.bwa
+-rw-r--r-- 1 evogenomica cursos        0 Dec 11 11:15 slumr-262995.base
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 10 10:34 slurmjob_blank.sh
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 10:59 slurmjob_bwa.sh
+-rwxr-xr-x 1 evogenomica cursos      249 Dec 11 11:12 slurm.samabam
+[evogenomica@hypatia marianar]$
+
+# Entonces en resumen creo un scrib  para Bam luego lo corro y lo veo pero para verlo lo veo asi:
+[evogenomica@hypatia marianar]$ module load samtools
+[evogenomica@hypatia marianar]$ samtools view A.bam
+
+#y ahi si me lo muestra normal no binario
+# si comparo el tamaño de sam contra bam, bam es mas pequeño
+# 1 bite = 8 bit
+[evogenomica@hypatia marianar]$ ls -xl A.sam
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+[evogenomica@hypatia marianar]$ ls -xl A.bam
+-rw-r--r-- 1 evogenomica cursos 2474723 Dec 11 11:15 A.bam
+[evogenomica@hypatia marianar]$
+
+
+# SAM SORTED ORGANIZA LOS READ EN ORDEN DEL GENOMA DE REFERENCIA OSEA POR POSICION
+# entonces creo un scrib y lo corro lo que me da tiene que darme el siguiente nombre de archivo mas pequeño y organizado
+[evogenomica@hypatia marianar]$ ls -xl A.sam
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+[evogenomica@hypatia marianar]$ ls -xl A.bam
+-rw-r--r-- 1 evogenomica cursos 2474723 Dec 11 11:15 A.bam
+[evogenomica@hypatia marianar]$
+
+lo corro con 
+sbatch slurm.sortbam
+ll
+
+# Para saber que tan grande es y se nota que ya sorted es pequeño
+[evogenomica@hypatia marianar]$ ls -xl A.*
+-rw-r--r-- 1 evogenomica cursos  2474723 Dec 11 11:15 A.bam
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+-rw-r--r-- 1 evogenomica cursos  1509514 Dec 11 11:30 A.sorted.bam
+[evogenomica@hypatia marianar]$
+
+
+
+# RESUMEN
+ # Mapear contra genoma de referencia sale un archivo sam el cual es un desorden porque tien muvha informacion de que read se mapearon contra el genoma de referencia
+# luego lo comprimo oara cada cambio armo un scrib  para pasar de sam a bam 
+# luego de bam a sorf bam organizado de bam a sorft bam
+module load picard
+picard MarkDuplicates -INPUT A.sorted.bam -OUTPUT A.MarkDup.sorted.bam -METRICS_FILE A_DupMetrics -ASSUME_SORTED true -VALIDATION_STRINGENCY SILENT -MAX_FILE_HANDLES_FOR_READ_ENDS_MAP 500
+
+# El valor de los archivos temporales los aclplico yo segun sepa y son temporales en un momento en especifico.
+# Los read que se repitieorn en la misma ubicacion y los agrupa  para eso es Mark duplicate y el comando picard
+# Corro el escrib y reviso:
+[evogenomica@hypatia marianar]$ sbatch slurm.picard
+Submitted batch job 263091
+[evogenomica@hypatia marianar]$ ll
+total 29003
+-rw-r--r-- 1 evogenomica cursos  2474723 Dec 11 11:15 A.bam
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_001.fastq
+-rw-r--r-- 1 evogenomica cursos  5697935 Dec 10 10:12 A-readpool-it1.part_002.fastq
+-rw-r--r-- 1 evogenomica cursos 14277700 Dec 11 11:02 A.sam
+-rw-r--r-- 1 evogenomica cursos  1509514 Dec 11 11:30 A.sorted.bam
+-rw-r--r-- 1 evogenomica cursos    30686 Dec 11 12:05 LogMariana-Rozo.txt
+-rw-r--r-- 1 evogenomica cursos     3952 Dec 10 22:43 LogMariana-Rozo.txt.save
+-rw-r--r-- 1 evogenomica cursos     1039 Dec 11 11:14 slumr-262965.bwa
+-rw-r--r-- 1 evogenomica cursos        0 Dec 11 11:15 slumr-262995.base
+-rw-r--r-- 1 evogenomica cursos        0 Dec 11 11:30 slumr-263033.base
+-rw-r--r-- 1 evogenomica cursos      435 Dec 11 12:06 slumr-263088.base
+-rw-r--r-- 1 evogenomica cursos        0 Dec 11 12:07 slumr-263091.base
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 10 10:34 slurmjob_blank.sh
+-rwxr-xr-x 1 evogenomica cursos      396 Dec 11 10:59 slurmjob_bwa.sh
+-rwxr-xr-x 1 evogenomica cursos      394 Dec 11 12:07 slurm.picard
+-rwxr-xr-x 1 evogenomica cursos      249 Dec 11 11:12 slurm.samabam
+-rwxr-xr-x 1 evogenomica cursos      254 Dec 11 11:29 slurm.sortbam
+[evogenomica@hypatia marianar]$ ls
+A.bam                          A-readpool-it1.part_002.fastq  LogMariana-Rozo.txt.save  slumr-263088.base  slurm.picard
+A_DupMetrics                   A.sam                          slumr-262965.bwa          slumr-263091.base  slurm.samabam
+A.MarkDup                      A.sorted.bam                   slumr-262995.base         slurmjob_blank.sh  slurm.sortbam
+A-readpool-it1.part_001.fastq  LogMariana-Rozo.txt            slumr-263033.base         slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ nano A_DupMetrics
+[evogenomica@hypatia marianar]$
+
+[evogenomica@hypatia marianar]$ ls
+A.bam                          A.sam                     slumr-262995.base  slurmjob_blank.sh
+A_DupMetrics                   A.sorted.bam              slumr-263033.base  slurmjob_bwa.sh
+A.MarkDup                      LogMariana-Rozo.txt       slumr-263088.base  slurm.picard
+A-readpool-it1.part_001.fastq  LogMariana-Rozo.txt.save  slumr-263091.base  slurm.samabam
+A-readpool-it1.part_002.fastq  slumr-262965.bwa          slurm.index        slurm.sortbam
+[evogenomica@hypatia marianar]$ samtools index A.MarkDup
+[evogenomica@hypatia marianar]$ ls
+A.bam                          A-readpool-it1.part_002.fastq  slumr-262965.bwa   slurm.index        slurm.sortbam
+A_DupMetrics                   A.sam                          slumr-262995.base  slurmjob_blank.sh
+A.MarkDup                      A.sorted.bam                   slumr-263033.base  slurmjob_bwa.sh
+A.MarkDup.bai                  LogMariana-Rozo.txt            slumr-263088.base  slurm.picard
+A-readpool-it1.part_001.fastq  LogMariana-Rozo.txt.save       slumr-263091.base  slurm.samabam
+[evogenomica@hypatia marianar]$ head A.MarkDup.bai
+BAII�`�7��␦V.uGV.Ib7���J�����~$�b7�[evogenomica@hypatia marianar]$ less A.MarkDup.bai
+"A.MarkDup.bai" may be a binary file.  See it anyway?
+[evogenomica@hypatia marianar]$
+
+
+[evogenomica@hypatia marianar]$ sbatch slurm.index
+Submitted batch job 263188
+[evogenomica@hypatia marianar]$ ls
+A.bam                          A.sorted.bam              slumr-263088.base  slumr-263176.base  slurm.samabam
+A_DupMetrics                   LogMariana-Rozo.txt       slumr-263091.base  slumr-263188.base  slurm.sortbam
+A.MarkDup                      LogMariana-Rozo.txt.save  slumr-263135.base  slurm.index
+A-readpool-it1.part_001.fastq  slumr-262965.bwa          slumr-263138.base  slurmjob_blank.sh
+A-readpool-it1.part_002.fastq  slumr-262995.base         slumr-263157.base  slurmjob_bwa.sh
+A.sam                          slumr-263033.base         slumr-263163.base  slurm.picard
+[evogenomica@hypatia marianar]$ head slumr-263188.base
+Using GATK jar /hpcfs/apps/conda4.12.0/envs/gatk4-4.4.0.0/share/gatk4-4.4.0.0-0/gatk-package-4.4.0.0-local.jar
+Running:
+    java -Dsamjdk.use_async_io_read_samtools=false -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=false -Dsamjdk.compression_level=2 -jar /hpcfs/apps/conda4.12.0/envs/gatk4-4.4.0.0/share/gatk4-4.4.0.0-0/gatk-package-4.4.0.0-local.jar HaplotypeCaller --input A.MarkDup --output A.markDup.sorted.bam.g.vcf --reference /hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta -mbq 20 -ERC GVCF
+15:54:14.617 INFO  NativeLibraryLoader - Loading libgkl_compression.so from jar:file:/hpcfs/apps/conda4.12.0/envs/gatk4-4.4.0.0/share/gatk4-4.4.0.0-0/gatk-package-4.4.0.0-local.jar!/com/intel/gkl/native/libgkl_compression.so
+15:54:14.736 INFO  HaplotypeCaller - ------------------------------------------------------------
+15:54:14.740 INFO  HaplotypeCaller - The Genome Analysis Toolkit (GATK) v4.4.0.0
+15:54:14.741 INFO  HaplotypeCaller - For support and documentation go to https://software.broadinstitute.org/gatk/
+15:54:14.741 INFO  HaplotypeCaller - Executing as evogenomica@nodei-3 on Linux v4.18.0-305.3.1.el8.x86_64 amd64
+15:54:14.742 INFO  HaplotypeCaller - Java runtime: OpenJDK 64-Bit Server VM v17.0.3-internal+0-adhoc..src
+15:54:14.742 INFO  HaplotypeCaller - Start Date/Time: December 11, 2024 at 3:54:14 PM COT
+[evogenomica@hypatia marianar]$ clear
+[evogenomica@hypatia marianar]$ ls
+A.bam                           A-readpool-it1.part_002.fastq  slumr-262995.base  slumr-263157.base  slurmjob_bwa.sh
+A_DupMetrics                    A.sam                          slumr-263033.base  slumr-263163.base  slurm.picard
+A.MarkDup                       A.sorted.bam                   slumr-263088.base  slumr-263176.base  slurm.samabam
+A.markDup.sorted.bam.g.vcf      LogMariana-Rozo.txt            slumr-263091.base  slumr-263188.base  slurm.sortbam
+A.markDup.sorted.bam.g.vcf.idx  LogMariana-Rozo.txt.save       slumr-263135.base  slurm.index
+A-readpool-it1.part_001.fastq   slumr-262965.bwa               slumr-263138.base  slurmjob_blank.sh
+[evogenomica@hypatia marianar]$ sbatch slurm.index
+Submitted batch job 263192
+[evogenomica@hypatia marianar]$ ls
+A.bam                           A-readpool-it1.part_002.fastq  slumr-262995.base  slumr-263157.base  slurmjob_blank.sh
+A_DupMetrics                    A.sam                          slumr-263033.base  slumr-263163.base  slurmjob_bwa.sh
+A.MarkDup                       A.sorted.bam                   slumr-263088.base  slumr-263176.base  slurm.picard
+A.markDup.sorted.bam.g.vcf      LogMariana-Rozo.txt            slumr-263091.base  slumr-263188.base  slurm.samabam
+A.markDup.sorted.bam.g.vcf.idx  LogMariana-Rozo.txt.save       slumr-263135.base  slumr-263192.base  slurm.sortbam
+A-readpool-it1.part_001.fastq   slumr-262965.bwa               slumr-263138.base  slurm.index
+[evogenomica@hypatia marianar]$ tail slumr-263192.base
+***********************************************************************
+
+A USER ERROR has occurred: Traversal by intervals was requested but some input files are not indexed.
+Please index all input files:
+
+samtools index /hpcfs/home/cursos/evogenomica/Estudiantes/marianar/A.MarkDup
+
+
+***********************************************************************
+Set the system property GATK_STACKTRACE_ON_USER_EXCEPTION (--java-options '-DGATK_STACKTRACE_ON_USER_EXCEPTION=true') to print the stack trace.
+[evogenomica@hypatia marianar]$ module load samtools
+[evogenomica@hypatia marianar]$ samtools index A.MarkDup
+[evogenomica@hypatia marianar]$ ls
+A.bam                           A-readpool-it1.part_001.fastq  slumr-262965.bwa   slumr-263138.base  slurm.index
+A_DupMetrics                    A-readpool-it1.part_002.fastq  slumr-262995.base  slumr-263157.base  slurmjob_blank.sh
+A.MarkDup                       A.sam                          slumr-263033.base  slumr-263163.base  slurmjob_bwa.sh
+A.MarkDup.bai                   A.sorted.bam                   slumr-263088.base  slumr-263176.base  slurm.picard
+A.markDup.sorted.bam.g.vcf      LogMariana-Rozo.txt            slumr-263091.base  slumr-263188.base  slurm.samabam
+A.markDup.sorted.bam.g.vcf.idx  LogMariana-Rozo.txt.save       slumr-263135.base  slumr-263192.base  slurm.sortbam
+[evogenomica@hypatia marianar]$ rm slumr-*
+[evogenomica@hypatia marianar]$ ls
+A.bam          A.markDup.sorted.bam.g.vcf      A.sam                     slurm.index        slurm.samabam
+A_DupMetrics   A.markDup.sorted.bam.g.vcf.idx  A.sorted.bam              slurmjob_blank.sh  slurm.sortbam
+A.MarkDup      A-readpool-it1.part_001.fastq   LogMariana-Rozo.txt       slurmjob_bwa.sh
+A.MarkDup.bai  A-readpool-it1.part_002.fastq   LogMariana-Rozo.txt.save  slurm.picard
+[evogenomica@hypatia marianar]$
+
+
+# AHORA SIIII YA TENGO INDIXADO MI DOCUMNETO MAK DUP .BAM ACUERATE QUE LO ESCRIBISTE DIFERENTE SIN BAM PARA AHORRAR ESPACIO COMO YA TENGO EN MI CARPETA INDEXADA  ENTONCES SI ME VA A CORRER  GATK EL CUAL ME VA A SACAR MIS FORMATOS g.vcf  y      g.vc.idx
+
+[evogenomica@hypatia marianar]$ sbatch slurm.index
+Submitted batch job 263204
+[evogenomica@hypatia marianar]$ ls
+A.bam          A.markDup.sorted.bam.g.vcf      A.sam                     slumr-263204.base  slurm.picard
+A_DupMetrics   A.markDup.sorted.bam.g.vcf.idx  A.sorted.bam              slurm.index        slurm.samabam
+A.MarkDup      A-readpool-it1.part_001.fastq   LogMariana-Rozo.txt       slurmjob_blank.sh  slurm.sortbam
+A.MarkDup.bai  A-readpool-it1.part_002.fastq   LogMariana-Rozo.txt.save  slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$ ls
+A.bam          A.markDup.sorted.bam.g.vcf      A.sam                     slumr-263204.base  slurm.picard
+A_DupMetrics   A.markDup.sorted.bam.g.vcf.idx  A.sorted.bam              slurm.index        slurm.samabam
+A.MarkDup      A-readpool-it1.part_001.fastq   LogMariana-Rozo.txt       slurmjob_blank.sh  slurm.sortbam
+A.MarkDup.bai  A-readpool-it1.part_002.fastq   LogMariana-Rozo.txt.save  slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$
+
+# Ya me salio los documentos en estos formatos
+#BUSCAR EL CODIGO EN 1DATA PORQUE HAY ESTA COMO SE COMBINAN TODOS LOS INDIVIDUUOS
+# LUEGO NE MI PC  BUSCO IGV Y LUEGO DESCARGO MI REFERENCIA LUEGO LAS COSAS COMBINADAS.VCF 
+# LUEGO SUBE ESO DE LA MANERA QUE ESTA EN EL VIDEO  QUE DEBO SUBIR EN CIERTA UBICACION:
+PS C:\Users\Everest> scp evogenomica@hypatia.uniandes.edu.co:/hpcfs/home/cursos/evogenomica/Estudiantes/1data/mitoreference/NC_023940.1.fasta .
+Bienvenido a Hypatia, el cluster de la Universidad de los Andes.
+
+evogenomica@hypatia.uniandes.edu.co's password:
+NC_023940.1.fasta                                                                     100%   17KB 935.4KB/s   00:00
+PS C:\Users\Everest> ls
+
+# RECUERDA LA ESCRUTURA PARA BAJAR FUERAAAA DE CLOUSTER EN MI WINDOW PILAS CON LA UBICACION LO MAS FACIL ES DONDE ESTE  ( ESPACIO .)
+
+# AHORA ANALISEMOS SOBRE VCF
+[evogenomica@hypatia marianar]$ ls
+A.bam                       A.markDup.sorted.bam.g.vcf.idx  LogMariana-Rozo.txt       slurm.index        slurm.sortbam
+A_DupMetrics                A-readpool-it1.part_001.fastq   LogMariana-Rozo.txt.save  slurmjob_blank.sh
+A.MarkDup                   A-readpool-it1.part_002.fastq   Mitopartridge29.vcf       slurmjob_bwa.sh
+A.MarkDup.bai               A.sam                           Mitopartridge29.vcf.idx   slurm.picard
+A.markDup.sorted.bam.g.vcf  A.sorted.bam                    slumr-263204.base         slurm.samabam
+[evogenomica@hypatia marianar]$ module load bcftools
+[evogenomica@hypatia marianar]$
+[evogenomica@hypatia marianar]$
+[evogenomica@hypatia marianar]$ bcftools stats Mitopartridge29.vcf > statsmito29.vcf
+[evogenomica@hypatia marianar]$ ls
+A.bam                           A-readpool-it1.part_001.fastq  Mitopartridge29.vcf      slurm.picard
+A_DupMetrics                    A-readpool-it1.part_002.fastq  Mitopartridge29.vcf.idx  slurm.samabam
+A.MarkDup                       A.sam                          slumr-263204.base        slurm.sortbam
+A.MarkDup.bai                   A.sorted.bam                   slurm.index              statsmito29.vcf
+A.markDup.sorted.bam.g.vcf      LogMariana-Rozo.txt            slurmjob_blank.sh
+A.markDup.sorted.bam.g.vcf.idx  LogMariana-Rozo.txt.save       slurmjob_bwa.sh
+[evogenomica@hypatia marianar]$
+
+# Para quitar indelex creo un scrib y lo corro
+module load vcftools
+vcftools --vcf Mitopartridge29.vcf --remove-indels --recode --recode-INFO-all --remove-filtered-all --out archivo_filtrado
+
+# Para saber cuantas variantes quedaron
+vcftools --vcf archivo_filtrado.recode.vcf
+
+# para bajar una carpeta o directorio en mi computador:
+scp -r evogenomica@hypatia.uniandes.edu.co:/hpcfs/home/cursos/evogenomica/Estudiantes/1data/Transcriptomica .
+
+# Scrib R para transcriptomica.
+# TALLER DE GENOMICA EVOLUTIVA 2024
+# Organizado por Selva: Investigacion para la conservacion en el Neotropico, la Universidad de los Andes, y por el Laboratorio de Ornitologia de Cornell, con el apoyo financiero de La Sociedad para el Estudio de la Evolucion SSE y Kent State University.
+# Script para el analisis de la expression genica de las perdices tibetanas a partir de datos de RNAseq del primer experimento de transplante.
+# Datos del articulo Gene expression plasticity in response to rapid and extreme elevation changes in Perdix hodgsoniae (Tibetan Partridge), https://doi.org/10.1093/ornithapp/duae050.
+# Script basado en los scripts desarrollados por Catalina Palacios entre Julio del 2021 y Agosto del 2022 como parte de su trabajo postdoctoral en el Lamichhaney Lab de Kent State University.
+
+
+# Antes de usar R y Rstudio
+# Extracto y modificado del archivo PartridgeProject_RNAseq_geneexpressionanalyses_logbook file
+
+## Para calcular la expression genica con la version HIC del genoma de la Perdiz Tibetana
+
+## to use rsem
+## rsem instalado con conda.
+
+## Preparing Reference Sequences in rsem 
+
+#conda activate rsem
+#conda activate star
+#example: rsem-prepare-reference --star --star-sjdboverhang 99 --num-threads 8 --gff3 Tibet_Partridge1_v1_10X_Genome_and_HiC.all.renamed.gff /scratch/catap/Partridge_project_Cata/data/referencegenome/Tibet_Partridge1_v1_10X_Genome_and_HiC.fasta TibetPartridgeHiCRef &
+#script: none
+#inputfiles: Tibet_Partridge1_v1_10X_Genome_and_HiC.fasta, and TP_Hic_genome_v1.all.gene.names.gff
+#outputfiles: TibetPartridgeHiCRef.chrlist, .grp, .gtf, .idx.fa, .n2g.idx.fa, .seq, .ti, .transcripts.fa
+
+## Calculating Expression Values
+
+#conda activate rsem
+#conda activate star
+#example: rsem-calculate-expression --paired-end --star --star-gzipped-read-file --paired-end -p 1 /scratch/catap/Partridge_project_Cata/data/trimmed_readsRNASeq/DCgao2fei.R1_val_1.fq.gz /scratch/catap/Partridge_project_Cata/data/trimmed_readsRNASeq/DCgao2fei.R2_val_2.fq.gz /scratch/catap/Partridge_project_Cata/data/referencegenome/TibetPartridgeHiCRef DCgao2fei &
+#script: none
+#inputfiles: DCgao2fei.R1_val_1.fq.gz, DCgao2fei.R2_val_1.fq.gz, and the folder with the outputs of the preparing references sequences in rsem.
+#outputfiles: DCgao2fei.log, DCgao2fei.stat, DCgao2fei.transcript.bam, DCgao2fei.genes.results, DCgao2fei.isoforms.results.
+
+## Use the output files with tximport and DESeq2 R packages to compare expression between groups.
+
+# En R y Rstudio
+# Extracto y modificado del archivo DESeq2Analyses_Transplants_RNA_Partridge_V2.R
+
+# Librerias requeridas
+
+## La mayoria de las librerias fueros instaladas usando BiocManager::install("package")
+## Para los analisis
+library(tximport)
+library(DESeq2)
+## Para las graficas
+library(ggplot2)
+library(pheatmap)
+
+
+library(gridExtra)
+library(ggrepel)
+library(ggpubr)
+library(gplots)
+
+
+# Set up your working directory
+
+##setwd(".../Transcriptomica")
+setwd("C:/Users/cata/Documents/2024/OutreachandEducation/TallerGenomicaEvolutivaColombia2024/Academicworkshop/MaterialesTallerGenomicaEvolutiva2024/Trascriptomica")
+
+# Archivos requeridos
+
+## Archivos de salida de rsem para cada muestra, ejemplo: T_0001Che3.genes.results y DCgao2fei.isoforms.results
+## Un archivo con los nombres de los archivos de salida de rsem, los nombres de cada muestra, y las condiciones o grupos que se quieren comparar, ejemplo: transplants_samplegroups.csv
+
+## Cargar los archivos y correr tximport
+
+filestable<-read.csv(file = "transplants_samplegroups.csv", header = T)
+files<-file.path("./rsemresultsGenomeV1", filestable$FileName) #WARNING there are two version of the genome, please choose the right results folder: rsemresultsGenomeV1 or rsemresultsHiCGenome
+file.exists(files)
+names(files)<-(filestable$Samplename)
+txirsem<-tximport(files = files, type = "rsem", txIn = F, txOut = F)
+
+### Tabla de condiciones (grupos por tiempo y lugar de las muestras)
+conditiontable<-data.frame(group=factor(filestable$Group))
+rownames(conditiontable) <- filestable$Samplename
+
+### Preparar los objetos de salida de tximport para correr DESeq2
+### Excluir genes con longitud igual a 0.
+filtertxirsem<-(apply(txirsem$length, 1, min) == 0)
+txirsem$length = txirsem$length[!filtertxirsem,]
+txirsem$abundance = txirsem$abundance[!filtertxirsem,]
+txirsem$counts = txirsem$counts[!filtertxirsem,]
+
+### Excluir genes con conteos iguales a 0 a traves de todos los individuos.
+filtertxirsem2<-(apply(txirsem$counts, 1, sum) == 0)
+txirsem$length = txirsem$length[!filtertxirsem2,]
+txirsem$abundance = txirsem$abundance[!filtertxirsem2,]
+txirsem$counts = txirsem$counts[!filtertxirsem2,]
+
+## Correr DESeq2
+
+deseqinput <- DESeqDataSetFromTximport(txirsem, conditiontable, ~group)
+dds<-DESeq(deseqinput)
+results1<-results(dds) #Si se usan estos resultados igual DESeq2 esta comparando dos grupos, de acuerdo con los grupos establecidos en el orden de la tabla. Ver https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#factorlevels
+results1 <- results1[complete.cases(results1),]  #remueve las filas con NA
+head(results1)
+summary(results1)
+
+nCounts <- counts(dds, normalized=TRUE) #nCounts <- counts(dds, normalized=FALSE) Este es para usar los conteos si normalizar.
+
+## Transformacion r log y PCA para revisar outliers
+
+rld <- rlogTransformation(dds, blind=TRUE)
+plotPCA(rld, intgroup = "group") + geom_text(aes(label=name),vjust=2, col="Black", size = 2)
+
+## Comparacion entre dos grupos
+
+comresults <- results(dds, contrast=c('group','Tib0','Che3'), alpha=0.1) # escoja los dos grupos que quiere comparar de acuerdo al archivo transplants_samplegroups.csv
+comresults <- comresults[complete.cases(comresults),]  #remove any rows with NA
+head(comresults)
+summary(comresults)
+
+comresultsdf<-as.data.frame(comresults)
+comresutdfdifexp<-comresultsdf[comresultsdf$padj<=0.05,]
+comresutdfdifexpOrd<- comresutdfdifexp[order(-comresutdfdifexp$log2FoldChange),]
+#write.table(comresultsdf, file = "AllGenes_Tib0vsChe3_GenomeV1")
+
+## Volcano Plots
+
+degdata<-read.csv(file = "DEGs_Trans_GenomeV1_32samples.csv", header = T)
+
+comresultsplus<-as.data.frame(comresults)
+comresultsplus$Genename<-rownames(comresultsplus)
+comresultsplus$log10Pvalue<--(log10(comresults$pvalue))
+comresultsplus$Genename<-degdata$Genename[match(row.names(comresultsplus), degdata$GeneID)]
+plot(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue, pch=16, cex=0.8, col=ifelse(comresultsplus$padj>0.1, "gray", ifelse(comresultsplus$log2FoldChange>0, "#FF8000", "#9333FF")), xlab="log2FoldChange", ylab="-log10 P-value adjusted",)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange<=0, NA, ifelse(comresultsplus$log10Pvalue>8, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange<=0, NA, ifelse(comresultsplus$log2FoldChange>=3, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange>=0, NA, ifelse(comresultsplus$log10Pvalue>4.8, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange>=0, NA, ifelse(comresultsplus$log2FoldChange<=-1.45, comresultsplus$Genename, NA)), cex = 0.5)
+
+## Escoger genes de interes
+
+genesofinteres<-as.data.frame(comresults[(comresults$padj<=0.01),]) #Usamos el P-valor ajustado porque "In DESeq2, the p-values attained by the Wald test are corrected for multiple testing using the Benjamini and Hochberg method by default." https://hbctraining.github.io/DGE_workshop/lessons/05_DGE_DESeq2_analysis2.html 
+#write.csv(genesofinteres, file = "Transplants_genespadjbelow0.01_Tib0vsChe3.csv")
+
+
+## Plot counts for a single gene
+
+gene<-"Tpar_old00002872" # Escoja alguno de los genes de interes
+gene1<-paste(gene, " XXX") #Reemplace XXX por el nombre del gen
+
+d<-plotCounts(dds, gene=gene, intgroup='group', returnData= TRUE) 
+
+ggplot(d, aes(x=group, y=count)) +
+  ylab("Normalized counts") +
+  theme_bw() +
+  theme(axis.title.x = element_blank()) + #, panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), panel.border = element_rect(color = "black")) +
+  geom_point(data = d, position=position_jitter(w=0.1,h=0), colour= "red3", size = 3) +
+  scale_x_discrete(limits = c("Tib0", "Che3", "Che22")) + 
+  labs(title=gene1) + theme(plot.title = element_text(hjust = 0.5)) #col="#9333FF" purple col="#FF8000" orange 
+
+## Heatmaps de DEGs
+
+degdata<-read.csv(file = "DEGs_Trans_GenomeV1_32samples.csv", header = T)
+deglist<-degdata$GeneID
+
+allDEGs<-nCounts[deglist,]
+hmcol1 <- colorRampPalette(c("#0000FF", "#FFFFFF", "#FF0000"))(n = 32)
+heatmap(as.matrix(allDEGs), Rowv = NA, Colv = NA, col = hmcol1, scale = "row")
+pheatmap(allDEGs, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 2)
+
+##### Para todos los grupos del trasplante
+subdegdata<-degdata 
+degdataOrd<-subdegdata[order(subdegdata$FromG, -subdegdata$log2FoldChange),]
+row.names(degdataOrd)<-c(1:nrow(degdataOrd))
+deglist1<-degdataOrd$GeneID
+subDEGsOrd<-nCounts[deglist1,]
+rownames(subDEGsOrd)<-degdataOrd$Genename[match(row.names(subDEGsOrd), degdataOrd$GeneID)]
+annotcol<-as.data.frame(filestable$Group[match(colnames(subDEGsOrd), filestable$Samplename)])
+colnames(annotcol)<-"Group"
+row.names(annotcol)<-filestable$Samplename
+annotrow<-as.data.frame(degdataOrd$From2[match(row.names(subDEGsOrd), degdataOrd$Genename)])
+colnames(annotrow)<- "Comparison" #"Module"
+row.names(annotrow)<-degdataOrd$Genename
+transcolors<-c(T0C3 = "#0000CC", T0C3_T0C22 = "#0066CC", T0C3_C3C22 = "#00CCCC", T0C22 ="#00CC00", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC")
+annotcolors<-list(Group = c(Tib0 = "#00B0F0", Che3 = "#00B050", Che22 = "#FFC000"), Comparison = transcolors)
+
+
+pheatmap(subDEGsOrd, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 1, fontsize_col = 6, 
+         gaps_col = c(5, 10), gaps_row = c(259, 404, 422, 648, 681, 714),
+         annotation_row = annotrow, annotation_col = annotcol, annotation_names_row = F , annotation_names_col = F, annotation_colors = annotcolors)
+
+
+##### Para cada grupo de trasplante
+
+T0C3<- c("T0C3", "T0C3_T0C22",	"T0C3_C3C22", "All3")
+T0C22<- c("T0C22", "T0C3_T0C22", "T0C22_C3C22", "All3")
+C3C22 <- c(	"C3C22", "T0C3_C3C22",	"T0C22_C3C22", "All3")
+subdegdata<-degdata[degdata$From2 %in% C3C22,] # Cambiar a T0C3, T0C22, C3C22
+degdataOrd<-subdegdata[order(-subdegdata$log2FoldChange),]
+row.names(degdataOrd)<-c(1:nrow(degdataOrd))
+deglist1<-degdataOrd$GeneID
+subDEGsOrd<-nCounts[deglist1,]
+rownames(subDEGsOrd)<-degdataOrd$Genename[match(row.names(subDEGsOrd), degdataOrd$GeneID)]
+annotcol<-as.data.frame(filestable$Group[match(colnames(subDEGsOrd), filestable$Samplename)])
+colnames(annotcol)<-"Group"
+row.names(annotcol)<-filestable$Samplename
+annotrow<-as.data.frame(degdataOrd$From2[match(row.names(subDEGsOrd), degdataOrd$Genename)])
+colnames(annotrow)<- "Comparison"
+row.names(annotrow)<-degdataOrd$Genename
+transcolors<-c(T0C3_C3C22 = "#00CCCC", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC") #T0C3 = "#0000CC", T0C3_T0C22 = "#0066CC", T0C3_C3C22 = "#00CCCC", T0C22 = "#00CC00", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC"
+annotcolors<-list(Group = c(Tib0 = "#00B0F0", Che3 = "#00B050", Che22 = "#FFC000"), Comparison = transcolors)
+
+pheatmap(subDEGsOrd, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 2, fontsize_col = 6, 
+         gaps_col = c(5, 10),
+         annotation_row = annotrow, annotation_col = annotcol, annotation_names_row = F , annotation_names_col = F, annotation_colors = annotcolors)
+
+## Analisis de Conteos normalizados: Plots de densidad y Plots de conteos normalizados organizados
+
+nCounts <- counts(dds, normalized=TRUE) #nCounts <- counts(dds, normalized=FALSE) This if for using the counts without normalize
+dfnCounts<-as.data.frame(nCounts)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+
+### Plots de densidad
+
+par(mfrow = c(3,2))
+plot(density(prueba$T_0006_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="Read counts' Density", main="T_0006")
+lines(density(prueba$T_0001Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0014Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0007_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="", main="T_0007")
+lines(density(prueba$T_0002Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0015Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0008_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="Read counts' Density", main="T_0008")
+lines(density(prueba$T_0003Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0016Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0009_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="Number of Genes", ylab="", main="T_0009")
+lines(density(prueba$T_0004Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0017Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0011_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="Number of Genes", ylab="Read counts' Density", main="T_0011")
+lines(density(prueba$T_0005Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0018Che22),col="#FFC000", lwd=2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+plot(prueba$T_0011_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0011")
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+points(prueba$T_0005Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+points(prueba$T_0018Che22,col="#FFC000", pch=16, cex=0.2)
+
+### Plots de conteos normalizados organizados
+
+par(mfrow = c(3,2))
+prueba<-dfnCounts[order(dfnCounts$T_0006_Tib0),]
+plot(prueba$T_0006_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0006")
+prueba<-dfnCounts[order(dfnCounts$T_0001Che3),]
+points(prueba$T_0001Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0014Che22),]
+points(prueba$T_0014Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0007_Tib0),]
+plot(prueba$T_0007_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0007")
+prueba<-dfnCounts[order(dfnCounts$T_0002Che3),]
+points(prueba$T_0002Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0015Che22),]
+points(prueba$T_0015Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0008_Tib0),]
+plot(prueba$T_0008_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0008")
+prueba<-dfnCounts[order(dfnCounts$T_0003Che3),]
+points(prueba$T_0003Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0016Che22),]
+points(prueba$T_0016Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0009_Tib0),]
+plot(prueba$T_0009_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0009")
+prueba<-dfnCounts[order(dfnCounts$T_0004Che3),]
+points(prueba$T_0004Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0017Che22),]
+points(prueba$T_0017Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+plot(prueba$T_0011_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0011")
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+points(prueba$T_0005Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+points(prueba$T_0018Che22,col="#FFC000", pch=16, cex=0.2)
+
+##########In the density plots, normalized counts are higher in Tib0 than in Che3 and Che22
+
+#Fin del script
+
+
+
+
+
+
+
+
+# CORRECCION DEL CODIGO: # TALLER DE GENOMICA EVOLUTIVA 2024
+# Organizado por Selva: Investigación para la conservacion en el Neotropico, la Universidad de los Andes, y por el Laboratorio de Ornitologia de Cornell, con el apoyo financiero de La Sociedad para el Estudio de la Evolucion SSE y Kent State University.
+# Script para el analisis de la expression genica de las perdices tibetanas a partir de datos de RNAseq del primer experimento de transplante.
+# Datos del articulo Gene expression plasticity in response to rapid and extreme elevation changes in Perdix hodgsoniae (Tibetan Partridge), https://doi.org/10.1093/ornithapp/duae050.
+# Script basado en los scripts desarrollados por Catalina Palacios entre Julio del 2021 y Agosto del 2022 como parte de su trabajo postdoctoral en el Lamichhaney Lab de Kent State University.
+
+#---------------LO QUE SE PREPRARA ANTES DEL R
+# Antes de usar R y Rstudio
+# Extracto y modificado del archivo PartridgeProject_RNAseq_geneexpressionanalyses_logbook file
+
+## Para calcular la expression genica con la version HIC del genoma de la Perdiz Tibetana
+
+## to use rsem
+## rsem instalado con conda.
+
+## Preparing Reference Sequences in rsem 
+
+#conda activate rsem
+#conda activate star
+#example: rsem-prepare-reference --star --star-sjdboverhang 99 --num-threads 8 --gff3 Tibet_Partridge1_v1_10X_Genome_and_HiC.all.renamed.gff /scratch/catap/Partridge_project_Cata/data/referencegenome/Tibet_Partridge1_v1_10X_Genome_and_HiC.fasta TibetPartridgeHiCRef &
+#script: none
+#inputfiles: Tibet_Partridge1_v1_10X_Genome_and_HiC.fasta, and TP_Hic_genome_v1.all.gene.names.gff
+#outputfiles: TibetPartridgeHiCRef.chrlist, .grp, .gtf, .idx.fa, .n2g.idx.fa, .seq, .ti, .transcripts.fa
+
+## Calculating Expression Values
+
+#conda activate rsem
+#conda activate star
+#example: rsem-calculate-expression --paired-end --star --star-gzipped-read-file --paired-end -p 1 /scratch/catap/Partridge_project_Cata/data/trimmed_readsRNASeq/DCgao2fei.R1_val_1.fq.gz /scratch/catap/Partridge_project_Cata/data/trimmed_readsRNASeq/DCgao2fei.R2_val_2.fq.gz /scratch/catap/Partridge_project_Cata/data/referencegenome/TibetPartridgeHiCRef DCgao2fei &
+#script: none
+#inputfiles: DCgao2fei.R1_val_1.fq.gz, DCgao2fei.R2_val_1.fq.gz, and the folder with the outputs of the preparing references sequences in rsem.
+#outputfiles: DCgao2fei.log, DCgao2fei.stat, DCgao2fei.transcript.bam, DCgao2fei.genes.results, DCgao2fei.isoforms.results.
+
+## Use the output files with tximport and DESeq2 R packages to compare expression between groups.
+
+#-------------------------------------------------------------------
+
+
+# En R y Rstudio
+# Extracto y modificado del archivo DESeq2Analyses_Transplants_RNA_Partridge_V2.R
+
+# Librerias requeridas
+
+## La mayoría de las librerías fueron instaladas usando BiocManager::install("package")
+
+## Para los análisis en R-------------------------------------------
+
+# tximport: Para importar y manejar datos de RNA-seq de herramientas como Salmon o Kallisto
+BiocManager::install("tximport")
+library(tximport)
+
+# DESeq2: Para realizar análisis estadísticos y encontrar genes diferencialmente expresados en datos de RNA-seq
+BiocManager::install("DESeq2")
+library(DESeq2)
+
+## Para las gráficas
+
+# ggplot2: Para crear gráficos complejos y personalizables, como diagramas de dispersión, histogramas, etc.
+library(ggplot2)
+
+# pheatmap: Para generar mapas de calor visualizando patrones de expresión génica u otros datos matriciales
+library(pheatmap)
+
+# gridExtra: Para organizar múltiples gráficos en una cuadrícula y mostrar comparaciones visuales
+library(gridExtra)
+
+# ggrepel: Para mejorar las etiquetas en los gráficos de ggplot2, evitando que se superpongan
+library(ggrepel)
+
+# ggpubr: Para agregar estadísticas descriptivas y mejorar la estética de los gráficos creados con ggplot2
+library(ggpubr)
+
+# gplots: Para crear mapas de calor y otras visualizaciones de datos, ofreciendo más personalización que pheatmap
+library(gplots)
+
+-----------------------------------------------------------------------------------------------------
+
+# Set up your working directory
+
+##setwd(".../Transcriptomica")
+setwd("C:/Users/Aspirante2024/Downloads/Transcriptomica")
+
+# Archivos requeridos
+
+## Archivos de salida de rsem para cada muestra, ejemplo: T_0001Che3.genes.results y DCgao2fei.isoforms.results
+## Un archivo con los nombres de los archivos de salida de rsem, los nombres de cada muestra, y las condiciones o grupos que se quieren comparar, ejemplo: transplants_samplegroups.csv
+
+## Cargar los archivos y correr tximport
+
+filestable<-read.csv(file = "transplants_samplegroups.csv", header = T)
+files<-file.path("./rsemresultsGenomeV1", filestable$FileName) #WARNING there are two version of the genome, please choose the right results folder: rsemresultsGenomeV1 or rsemresultsHiCGenome
+file.exists(files)
+names(files)<-(filestable$Samplename)
+txirsem<-tximport(files = files, type = "rsem", txIn = F, txOut = F)
+
+### Tabla de condiciones (grupos por tiempo y lugar de las muestras)
+conditiontable<-data.frame(group=factor(filestable$Group))
+rownames(conditiontable) <- filestable$Samplename
+
+### Preparar los objetos de salida de tximport para correr DESeq2
+### Excluir genes con longitud igual a 0.
+filtertxirsem<-(apply(txirsem$length, 1, min) == 0)
+txirsem$length = txirsem$length[!filtertxirsem,]
+txirsem$abundance = txirsem$abundance[!filtertxirsem,]
+txirsem$counts = txirsem$counts[!filtertxirsem,]
+
+### Excluir genes con conteos iguales a 0 a traves de todos los individuos.
+filtertxirsem2<-(apply(txirsem$counts, 1, sum) == 0)
+txirsem$length = txirsem$length[!filtertxirsem2,]
+txirsem$abundance = txirsem$abundance[!filtertxirsem2,]
+txirsem$counts = txirsem$counts[!filtertxirsem2,]
+
+## Correr DESeq2
+
+deseqinput <- DESeqDataSetFromTximport(txirsem, conditiontable, ~group)
+dds<-DESeq(deseqinput)
+results1<-results(dds) #Si se usan estos resultados igual DESeq2 esta comparando dos grupos, de acuerdo con los grupos establecidos en el orden de la tabla. Ver https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#factorlevels
+results1 <- results1[complete.cases(results1),]  #remueve las filas con NA
+head(results1)
+summary(results1)
+
+nCounts <- counts(dds, normalized=TRUE) #nCounts <- counts(dds, normalized=FALSE) Este es para usar los conteos si normalizar.
+
+## Transformacion r log y PCA para revisar outliers
+
+rld <- rlogTransformation(dds, blind=TRUE)
+plotPCA(rld, intgroup = "group") + geom_text(aes(label=name),vjust=2, col="Black", size = 2)
+
+## Comparacion entre dos grupos
+
+comresults <- results(dds, contrast=c('group','Tib0','Che3'), alpha=0.1) # escoja los dos grupos que quiere comparar de acuerdo al archivo transplants_samplegroups.csv
+comresults <- comresults[complete.cases(comresults),]  #remove any rows with NA
+head(comresults)
+summary(comresults)
+comresultsdf<-as.data.frame(comresults)
+comresutdfdifexp<-comresultsdf[comresultsdf$padj<=0.05,]
+comresutdfdifexpOrd<- comresutdfdifexp[order(-comresutdfdifexp$log2FoldChange),]
+
+comresults <- results(dds, contrast=c('group','Tib0','Che22'), alpha=0.1) # escoja los dos grupos que quiere comparar de acuerdo al archivo transplants_samplegroups.csv
+comresults <- comresults[complete.cases(comresults),]  #remove any rows with NA
+head(comresults)
+summary(comresults)
+comresultsdf<-as.data.frame(comresults)
+comresutdfdifexp<-comresultsdf[comresultsdf$padj<=0.05,]
+comresutdfdifexpOrd<- comresutdfdifexp[order(-comresutdfdifexp$log2FoldChange),]
+
+
+
+
+write.table(comresultsdf, file = "AllGenes_Tib0vsChe3_GenomeV1")
+
+## Volcano Plots ,,,,,,,,,,,,,,,,,,,
+
+degdata<-read.csv(file = "DEGs_Trans_GenomeV1_32samples.csv", header = T)
+
+comresultsplus<-as.data.frame(comresults)
+comresultsplus$Genename<-rownames(comresultsplus)
+comresultsplus$log10Pvalue<--(log10(comresults$pvalue))
+comresultsplus$Genename<-degdata$Genename[match(row.names(comresultsplus), degdata$GeneID)]
+plot(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue, pch=16, cex=0.8, col=ifelse(comresultsplus$padj>0.1, "gray", ifelse(comresultsplus$log2FoldChange>0, "#FF8000", "#9333FF")), xlab="log2FoldChange", ylab="-log10 P-value adjusted",)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange<=0, NA, ifelse(comresultsplus$log10Pvalue>8, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange<=0, NA, ifelse(comresultsplus$log2FoldChange>=3, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange>=0, NA, ifelse(comresultsplus$log10Pvalue>4.8, comresultsplus$Genename, NA)), cex = 0.5)
+text(comresultsplus$log2FoldChange, comresultsplus$log10Pvalue+0.5, labels=ifelse(comresultsplus$log2FoldChange>=0, NA, ifelse(comresultsplus$log2FoldChange<=-1.45, comresultsplus$Genename, NA)), cex = 0.5)
+
+## Escoger genes de interes
+
+genesofinteres<-as.data.frame(comresults[(comresults$padj<=0.01),]) #Usamos el P-valor ajustado porque "In DESeq2, the p-values attained by the Wald test are corrected for multiple testing using the Benjamini and Hochberg method by default." https://hbctraining.github.io/DGE_workshop/lessons/05_DGE_DESeq2_analysis2.html 
+#write.csv(genesofinteres, file = "Transplants_genespadjbelow0.01_Tib0vsChe3.csv")
+
+
+## Plot counts for a single gene
+
+gene<-"Tpar_old00002872" # Escoja alguno de los genes de interes
+gene1<-paste(gene, " XXX") #Reemplace XXX por el nombre del gen
+
+d<-plotCounts(dds, gene=gene, intgroup='group', returnData= TRUE) 
+
+ggplot(d, aes(x=group, y=count)) +
+  ylab("Normalized counts") +
+  theme_bw() +
+  theme(axis.title.x = element_blank()) + #, panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), panel.border = element_rect(color = "black")) +
+  geom_point(data = d, position=position_jitter(w=0.1,h=0), colour= "red3", size = 3) +
+  scale_x_discrete(limits = c("Tib0", "Che3", "Che22")) + 
+  labs(title=gene1) + theme(plot.title = element_text(hjust = 0.5)) #col="#9333FF" purple col="#FF8000" orange 
+
+## Heatmaps de DEGs
+
+degdata<-read.csv(file = "DEGs_Trans_GenomeV1_32samples.csv", header = T)
+deglist<-degdata$GeneID
+
+allDEGs<-nCounts[deglist,]
+hmcol1 <- colorRampPalette(c("#0000FF", "#FFFFFF", "#FF0000"))(n = 32)
+heatmap(as.matrix(allDEGs), Rowv = NA, Colv = NA, col = hmcol1, scale = "row")
+pheatmap(allDEGs, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 2)
+
+##### Para todos los grupos del trasplante
+subdegdata<-degdata 
+degdataOrd<-subdegdata[order(subdegdata$FromG, -subdegdata$log2FoldChange),]
+row.names(degdataOrd)<-c(1:nrow(degdataOrd))
+deglist1<-degdataOrd$GeneID
+subDEGsOrd<-nCounts[deglist1,]
+rownames(subDEGsOrd)<-degdataOrd$Genename[match(row.names(subDEGsOrd), degdataOrd$GeneID)]
+annotcol<-as.data.frame(filestable$Group[match(colnames(subDEGsOrd), filestable$Samplename)])
+colnames(annotcol)<-"Group"
+row.names(annotcol)<-filestable$Samplename
+annotrow<-as.data.frame(degdataOrd$From2[match(row.names(subDEGsOrd), degdataOrd$Genename)])
+colnames(annotrow)<- "Comparison" #"Module"
+row.names(annotrow)<-degdataOrd$Genename
+transcolors<-c(T0C3 = "#0000CC", T0C3_T0C22 = "#0066CC", T0C3_C3C22 = "#00CCCC", T0C22 ="#00CC00", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC")
+annotcolors<-list(Group = c(Tib0 = "#00B0F0", Che3 = "#00B050", Che22 = "#FFC000"), Comparison = transcolors)
+
+
+pheatmap(subDEGsOrd, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 1, fontsize_col = 6, 
+         gaps_col = c(5, 10), gaps_row = c(259, 404, 422, 648, 681, 714),
+         annotation_row = annotrow, annotation_col = annotcol, annotation_names_row = F , annotation_names_col = F, annotation_colors = annotcolors)
+
+
+##### Para cada grupo de trasplante
+
+T0C3<- c("T0C3", "T0C3_T0C22",	"T0C3_C3C22", "All3")
+T0C22<- c("T0C22", "T0C3_T0C22", "T0C22_C3C22", "All3")
+C3C22 <- c(	"C3C22", "T0C3_C3C22",	"T0C22_C3C22", "All3")
+subdegdata<-degdata[degdata$From2 %in% C3C22,] # Cambiar a T0C3, T0C22, C3C22
+degdataOrd<-subdegdata[order(-subdegdata$log2FoldChange),]
+row.names(degdataOrd)<-c(1:nrow(degdataOrd))
+deglist1<-degdataOrd$GeneID
+subDEGsOrd<-nCounts[deglist1,]
+rownames(subDEGsOrd)<-degdataOrd$Genename[match(row.names(subDEGsOrd), degdataOrd$GeneID)]
+annotcol<-as.data.frame(filestable$Group[match(colnames(subDEGsOrd), filestable$Samplename)])
+colnames(annotcol)<-"Group"
+row.names(annotcol)<-filestable$Samplename
+annotrow<-as.data.frame(degdataOrd$From2[match(row.names(subDEGsOrd), degdataOrd$Genename)])
+colnames(annotrow)<- "Comparison"
+row.names(annotrow)<-degdataOrd$Genename
+transcolors<-c(T0C3_C3C22 = "#00CCCC", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC") #T0C3 = "#0000CC", T0C3_T0C22 = "#0066CC", T0C3_C3C22 = "#00CCCC", T0C22 = "#00CC00", T0C22_C3C22 = "#66CC00", C3C22 = "#CCCC00", All3 = "#6600CC"
+annotcolors<-list(Group = c(Tib0 = "#00B0F0", Che3 = "#00B050", Che22 = "#FFC000"), Comparison = transcolors)
+
+pheatmap(subDEGsOrd, scale = "row", Rowv = NA, Colv = NA, revC = T, color = hmcol1, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = "90", fontsize_row = 2, fontsize_col = 6, 
+         gaps_col = c(5, 10),
+         annotation_row = annotrow, annotation_col = annotcol, annotation_names_row = F , annotation_names_col = F, annotation_colors = annotcolors)
+
+## Analisis de Conteos normalizados: Plots de densidad y Plots de conteos normalizados organizados
+
+nCounts <- counts(dds, normalized=TRUE) #nCounts <- counts(dds, normalized=FALSE) This if for using the counts without normalize
+dfnCounts<-as.data.frame(nCounts)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+
+### Plots de densidad
+
+par(mfrow = c(3,2))
+plot(density(prueba$T_0006_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="Read counts' Density", main="T_0006")
+lines(density(prueba$T_0001Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0014Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0007_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="", main="T_0007")
+lines(density(prueba$T_0002Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0015Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0008_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="", ylab="Read counts' Density", main="T_0008")
+lines(density(prueba$T_0003Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0016Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0009_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="Number of Genes", ylab="", main="T_0009")
+lines(density(prueba$T_0004Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0017Che22),col="#FFC000", lwd=2)
+
+plot(density(prueba$T_0011_Tib0), col="#00B0F0", lwd=2, xlim=c(0,3000), xlab="Number of Genes", ylab="Read counts' Density", main="T_0011")
+lines(density(prueba$T_0005Che3),col="#00B050", lwd=2)
+lines(density(prueba$T_0018Che22),col="#FFC000", lwd=2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+plot(prueba$T_0011_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0011")
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+points(prueba$T_0005Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+points(prueba$T_0018Che22,col="#FFC000", pch=16, cex=0.2)
+
+### Plots de conteos normalizados organizados
+
+par(mfrow = c(3,2))
+prueba<-dfnCounts[order(dfnCounts$T_0006_Tib0),]
+plot(prueba$T_0006_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0006")
+prueba<-dfnCounts[order(dfnCounts$T_0001Che3),]
+points(prueba$T_0001Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0014Che22),]
+points(prueba$T_0014Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0007_Tib0),]
+plot(prueba$T_0007_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0007")
+prueba<-dfnCounts[order(dfnCounts$T_0002Che3),]
+points(prueba$T_0002Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0015Che22),]
+points(prueba$T_0015Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0008_Tib0),]
+plot(prueba$T_0008_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0008")
+prueba<-dfnCounts[order(dfnCounts$T_0003Che3),]
+points(prueba$T_0003Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0016Che22),]
+points(prueba$T_0016Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0009_Tib0),]
+plot(prueba$T_0009_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0009")
+prueba<-dfnCounts[order(dfnCounts$T_0004Che3),]
+points(prueba$T_0004Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0017Che22),]
+points(prueba$T_0017Che22,col="#FFC000", pch=16, cex=0.2)
+
+prueba<-dfnCounts[order(dfnCounts$T_0011_Tib0),]
+plot(prueba$T_0011_Tib0, col="#00B0F0", pch=16, cex=0.2, xlim=c(13000,15000), ylim=c(0,2000), xlab="Genes", ylab="Normalized Read counts", main="T_0011")
+prueba<-dfnCounts[order(dfnCounts$T_0005Che3),]
+points(prueba$T_0005Che3,col="#00B050", pch=16, cex=0.2)
+prueba<-dfnCounts[order(dfnCounts$T_0018Che22),]
+points(prueba$T_0018Che22,col="#FFC000", pch=16, cex=0.2)
+
+##########In the density plots, normalized counts are higher in Tib0 than in Che3 and Che22
+
+#Fin del script
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

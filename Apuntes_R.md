@@ -1,0 +1,84 @@
+rmindeter<-function(frecuencia){
+  x<-frecuencia[frecuencia$Var1 != "Indeterminado", ]
+  return(x)
+}
+frecuencias_limpias <- lapply(frecuencias, rmindeter)
+
+PERO YO DEBIA HABER HECHO EL FILTRADO PRIMERO HACIENDO UNA FUNCION Y LUEGO EMPLEANDO LA FUNCION PORQUE LA IDEA DE UNA FUNCION ES QUE UNA LA PUEA USAR EN OTRAS COSAS
+
+filtrar<-function(x){
+z=subset(x,x$Var1!="Indeterminado")
+return(z)
+}
+frecuencias_limpias <- lapply(frecuencias, filtrar)
+
+x <-matrix(rnorm(30), nrow=5, ncol=6)
+#rnorm districuoion norna con datos aleatorios
+
+sink('Basededatosd_human.txt')
+d
+sink()
+
+#MEJORAR GRAFICOS
+mynamestheme <- theme(plot.title = element_text(size = 16, hjust = 0.5))
+# Supervivencia 30
+pdf("supervivencia_30.pdf")
+plot_30 <- ggplot(table_28_30, aes(x = Age, y = lx_30, color = lx_30)) +
+        geom_line() +
+        geom_point() +
+        theme(panel.background = element_rect(fill = "white", colour = "black")) +
+        mynamestheme +
+        ggtitle("Supervivencia 30") +
+        ylab("Survival") +
+        xlab("Age")
+print(plot_30) # Es necesario imprimirlo para que se guarde en el PDF
+dev.off()
+
+## Supervivencia 25
+pdf("supervivencia_25.pdf")
+plot_25 <- ggplot(table_28_25, aes(x = Age, y = lx_25, color = lx_25)) + # Cambiado a lx_25
+        geom_line() +
+        geom_point() +
+        theme(panel.background = element_rect(fill = "white", colour = "black")) +
+        mynamestheme +
+        ggtitle("Supervivencia 25") +
+        ylab("Survival") +
+        xlab("Age")
+print(plot_25)
+dev.off()
+
+##Supervivencia 20
+pdf("supervivencia_20.pdf")
+plot_20 <- ggplot(table_28_20, aes(x = Age, y = lx_20, color = lx_20)) + # Cambiado a lx_20
+        geom_line() +
+        geom_point() +
+        theme(panel.background = element_rect(fill = "white", colour = "black")) +
+        mynamestheme +
+        ggtitle("Supervivencia 20") +
+        ylab("Survival") +
+        xlab("Age")
+print(plot_20)
+dev.off()
+
+marianarozor@LAPTOP-TK3I2MC2:~$ scp -i bio.pt.pem -P 53841 bio.pt@loginpub-hpc.urosario.edu.co:/home/bio.pt/data/marianarozor/clases/4/supervivencia_25.pdf /mnt/c/Users/Mariana\ Rozo/Downloads/
+supervivencia_25.pdf                                                                  100%   11KB  57.2KB/s   00:00
+marianarozor@LAPTOP-TK3I2MC2:~$ scp -i bio.pt.pem -P 53841 bio.pt@loginpub-hpc.urosario.edu.co:/home/bio.pt/data/marianarozor/clases/4/supervivencia_20.pdf /mnt/c/Users/Mariana\ Rozo/Downloads/
+marianarozor@LAPTOP-TK3I2MC2:~$ scp -i bio.pt.pem -P 53841 bio.pt@loginpub-hpc.urosario.edu.co:/home/bio.pt/data/marianarozor/clases/4/supervivencia_30.pdf /mnt/c/Users/Mariana\ Rozo/Downloads/
+supervivencia_30.pdf
+
+table_28<-merge(table_28_20,table_28_25, by= "Age",all.x=TRUE)
+table_28_all<-merge(table_28,table_28_30, by= "Age",all.x=TRUE)
+df_sr <- table_28_all %>%
+  select(Age, lx_20, lx_25,lx_30) %>%
+  gather(key = "variable", value = "value", -Age)
+head(df_sr)
+
+pdf("supervivencia_tratamientos.pdf")
+ggplot(df_sr, aes(x = Age, y = value,color = variable)) +
+  geom_line() + geom_point()+
+  theme(panel.background = element_rect(fill = "white", colour = "black")) +
+  mynamestheme +
+  ggtitle("Supervivencia segun tratamiento") +
+  ylab("Survival") +
+  xlab("Age")
+dev.off()

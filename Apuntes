@@ -1,0 +1,49 @@
+Clouster: hpc Caldas
+Tienen kenguaje slurm, es sistema operativo es mac+ ubuntu, algo super importante son lo nodos y nucleos
+Nodo:Corresponden a caa CPU que tiene el Clouster
+Nucleos: corresponder a un espacio espceififoc de memoria de procesamiento en acda CPU
+Cada nodo tiene = 32 nucleos
+Nodo central administra los otros nodos, el nodo central no se toca para nada
+Cuando ingreso al clouster entro al nodo central por eso alli no s epuede ejecutar ningun trabjo
+Particiones:  Dentro de cada una existen nodos especificos
+clouster condominio
+torre: Particiones
+Apartaento: nodos
+habitación: nucleos
+slurm: los comandos empiezan con S
+comandos:
+
+sinfo = Indica información partciciones, NODOS LISTA DE Nodos
+Nodos = 32 Nucleos
+
+sconntrol= memoria CPUS
+
+
+#PARA PEDIR RECURSOS: NUCLEOS NODOS TIEMPO MEMORIA SE ASIGNA SOLA SEGUN LA CANTIDAD DE NODOS QUE ESCOGI
+salloc =  Me asigna un espacio
+srun = Asigna recursos  y lanza cuando espado necesito y cuanto lo voy a correr
+sbatch = uso un documento aparte y ahi si lo mando
+
+
+Existen letras para colocar loq ue voy a pedir en la presnetación presnetación estac
+Salen frases la que mas sale es FAIL
+
+
+# Para ver la posicion de la fila en la que ando de mi usuario
+sacct = SABER EN QUE VA MI CODIGO QUE CORRI VER EL ESTADO
+
+hold = pausar
+scp -i  /home/marianarozor/bio.pt.pem -P 53841 lista_fastas.zip bio.pt@loginpub-hpc.urosario.edu.co:/home/bio.pt/data/marianarozor
+
+(base) [bio.pt@caldas01 1]$ cat ejemplo.sh
+#!/bin/bash
+#SBATCH -p normal #Particion (cola)
+#SBATCH -N 1 # Numero de nodos
+#SBATCH -n 2 # Numero de nucleos
+#SBATCH -t 0-00:5 # limite de tiempo (D-HH:MM)
+Determinar mediante análisis de enriquecimiento funcional (Gene Ontology) y rutas metabólicas, los procesos biológicos regulados por isoformas alternativas que favorecen la especialización y supervivencia del parásito durante la infección crónica prolongada.alida.out # Salida STDOUT
+#SBATCH -e error.err # Salida STDERR
+#SBATCH --mail-user=mariana.rozor@urosario.edu.co #Direccion e-mail a donde notificar el estado del trabajo
+#SBATCH --mail-type=ALL #Especifica que eventos notificar al correo (ALL, BEGIN, END, REQUEUE, FAIL)
+
+cat sanandres146.fa sanandres147.fa sanandres154.fa sanandres155.fa >> sanandresunido.fa
